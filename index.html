@@ -44,6 +44,7 @@
   --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#3ab53a; --s7:#9085e9; --s8:#e66767;
 }
 *{box-sizing:border-box;}
+html{overflow-anchor:none;}
 body{background:var(--surface-0); color:var(--text-primary); font-family:var(--font-sans); margin:0; padding:1.25rem; font-size:14px; line-height:1.5;}
 .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap;}
 .pageheader{display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;}
@@ -575,8 +576,10 @@ function syncDynamicSticky(){
   if(movedSub && movedSubPh){ movedSubPh.replaceWith(movedSub); movedSub=null; movedSubPh=null; }
   if(movedCard && movedCardPh){ movedCardPh.replaceWith(movedCard); movedCard=null; movedCardPh=null; }
   if(!headerPinned) return;
-  const sub = document.querySelector('.panel.active > .tabbar.sub');
-  const card = document.querySelector('.panel.active .card');
+  const topPanel = document.querySelector('#toppanel-padroes.active, #toppanel-produto.active');
+  const sub = topPanel ? topPanel.querySelector(':scope > .tabbar.sub') : null;
+  const leafPanel = topPanel ? (topPanel.querySelector(':scope > .panel.active') || topPanel) : null;
+  const card = leafPanel ? leafPanel.querySelector(':scope > .card') : null;
   if(sub){
     movedSubPh = document.createComment('sticky-sub-placeholder');
     sub.parentNode.insertBefore(movedSubPh, sub);
