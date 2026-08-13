@@ -90,17 +90,16 @@ thead th.sortable:hover{color:var(--text-primary);}
 .switch{position:relative; display:inline-flex; align-items:center; width:40px; height:22px; flex:none; cursor:pointer;}
 .switch input{position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer;}
 .switch-track{position:absolute; inset:0; background:var(--surface-2); border:1px solid var(--border); border-radius:999px; transition:background .15s ease;}
-.switch input:checked + .switch-track{background:var(--accent); border-color:var(--accent);}
+.switch.is-on .switch-track{background:var(--accent); border-color:var(--accent);}
 .switch-thumb{position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.35); transition:transform .15s ease;}
-.switch input:checked ~ .switch-thumb{transform:translateX(18px);}
-.switch.theme-switch{width:52px; height:24px;}
-.switch.theme-switch .switch-thumb{top:2px; left:2px; width:18px; height:18px;}
-.switch.theme-switch input:checked ~ .switch-thumb{transform:translateX(28px);}
-.switch-icon{position:absolute; top:50%; transform:translateY(-50%); width:12px; height:12px; color:var(--text-muted); pointer-events:none; transition:color .15s ease;}
-.switch-icon.icon-sun{left:5px;}
-.switch-icon.icon-moon{right:5px;}
-.switch input:not(:checked) ~ .icon-sun{color:var(--accent-ink, var(--text-primary));}
-.switch input:checked ~ .icon-moon{color:#fff;}
+.switch.is-on .switch-thumb{transform:translateX(18px);}
+.switch-icon{position:absolute; top:50%; transform:translateY(-50%); width:11px; height:11px; color:var(--text-muted); pointer-events:none; transition:color .15s ease;}
+.switch-icon.icon-sun{left:4px;}
+.switch-icon.icon-moon{right:4px;}
+.switch:not(.is-on) .switch-track .icon-sun{color:var(--text-primary);}
+.switch.is-on .switch-track .icon-moon{color:#fff;}
+.switch.is-on .switch-track .icon-sun{color:#fff;}
+.switch.theme-switch.is-on .switch-track{background:var(--surface-2); border-color:var(--border);}
 .legend{display:flex; flex-wrap:wrap; gap:12px; font-size:12px; color:var(--text-secondary); margin:0 0 8px;}
 .legend .sw{display:inline-flex; align-items:center; gap:5px;}
 .legend .dot{width:9px; height:9px; border-radius:2px; display:inline-block;}
@@ -144,18 +143,22 @@ tbody tr:last-child td{border-bottom:none;}
   <div style="display:flex; gap:18px; align-items:center; flex-wrap:wrap;">
     <label class="switchbar">
       <span class="switchlabel">Fixar menu</span>
-      <span class="switch">
+      <span class="switch" id="pin-switch">
         <input type="checkbox" id="pin-checkbox">
         <span class="switch-track"></span>
         <span class="switch-thumb"></span>
       </span>
     </label>
-    <label class="switch theme-switch" aria-label="Alternar aparência clara ou escura">
-      <input type="checkbox" id="theme-checkbox">
-      <span class="switch-track"></span>
-      <svg class="switch-icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-      <svg class="switch-icon icon-moon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      <span class="switch-thumb"></span>
+    <label class="switchbar">
+      <span class="switchlabel">Aparência</span>
+      <span class="switch theme-switch" id="theme-switch">
+        <input type="checkbox" id="theme-checkbox" aria-label="Alternar aparência clara ou escura">
+        <span class="switch-track">
+          <svg class="switch-icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <svg class="switch-icon icon-moon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </span>
+        <span class="switch-thumb"></span>
+      </span>
     </label>
   </div>
 </div>
@@ -575,10 +578,14 @@ function applyTheme(theme, rerender){
   document.documentElement.setAttribute('data-theme', theme);
   const cb = document.getElementById('theme-checkbox');
   if(cb) cb.checked = theme==='dark';
+  const sw = document.getElementById('theme-switch');
+  if(sw) sw.classList.toggle('is-on', theme==='dark');
   try{ localStorage.setItem('dashboard-theme', theme); }catch(e){}
   if(rerender){
-    safeRun(render, 'gráficos (troca de tema)');
-    safeRun(renderPadroes, 'Padrões (troca de tema)');
+    requestAnimationFrame(()=>{
+      safeRun(render, 'gráficos (troca de tema)');
+      safeRun(renderPadroes, 'Padrões (troca de tema)');
+    });
   }
 }
 document.getElementById('theme-checkbox').addEventListener('change', e=>applyTheme(e.target.checked?'dark':'light', true));
@@ -633,6 +640,8 @@ function applyPin(state, persist){
   syncDynamicSticky();
   const cb = document.getElementById('pin-checkbox');
   if(cb) cb.checked = headerPinned;
+  const sw = document.getElementById('pin-switch');
+  if(sw) sw.classList.toggle('is-on', headerPinned);
   if(persist!==false){ try{ localStorage.setItem('dashboard-header-pin', state); }catch(e){} }
 }
 document.getElementById('pin-checkbox').addEventListener('change', e=>applyPin(e.target.checked?'on':'off', true));
