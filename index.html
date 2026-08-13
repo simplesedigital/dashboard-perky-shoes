@@ -85,6 +85,22 @@ thead th.sortable:hover{color:var(--text-primary);}
 .seg{display:flex; background:var(--surface-1); border-radius:6px; padding:3px; gap:2px;}
 .seg button{border:none; background:transparent; color:var(--text-secondary); font-size:12px; padding:5px 9px; border-radius:4px; cursor:pointer; font-family:var(--font-sans);}
 .seg button[aria-pressed="true"]{background:var(--surface-2); color:var(--text-primary); box-shadow:0 0 0 1px var(--border);}
+.switchbar{display:inline-flex; align-items:center; gap:8px; cursor:pointer; user-select:none;}
+.switchbar .switchlabel{font-size:12px; color:var(--text-secondary); font-family:var(--font-sans);}
+.switch{position:relative; display:inline-flex; align-items:center; width:40px; height:22px; flex:none; cursor:pointer;}
+.switch input{position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer;}
+.switch-track{position:absolute; inset:0; background:var(--surface-2); border:1px solid var(--border); border-radius:999px; transition:background .15s ease;}
+.switch input:checked + .switch-track{background:var(--accent); border-color:var(--accent);}
+.switch-thumb{position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.35); transition:transform .15s ease;}
+.switch input:checked ~ .switch-thumb{transform:translateX(18px);}
+.switch.theme-switch{width:52px; height:24px;}
+.switch.theme-switch .switch-thumb{top:2px; left:2px; width:18px; height:18px;}
+.switch.theme-switch input:checked ~ .switch-thumb{transform:translateX(28px);}
+.switch-icon{position:absolute; top:50%; transform:translateY(-50%); width:12px; height:12px; color:var(--text-muted); pointer-events:none; transition:color .15s ease;}
+.switch-icon.icon-sun{left:5px;}
+.switch-icon.icon-moon{right:5px;}
+.switch input:not(:checked) ~ .icon-sun{color:var(--accent-ink, var(--text-primary));}
+.switch input:checked ~ .icon-moon{color:#fff;}
 .legend{display:flex; flex-wrap:wrap; gap:12px; font-size:12px; color:var(--text-secondary); margin:0 0 8px;}
 .legend .sw{display:inline-flex; align-items:center; gap:5px;}
 .legend .dot{width:9px; height:9px; border-radius:2px; display:inline-block;}
@@ -125,15 +141,22 @@ tbody tr:last-child td{border-bottom:none;}
     <h1>Dashboard E-commerce</h1>
     <p class="subtitle">Perky Shoes — dados de pedidos, estoque e descontos via API Vnda</p>
   </div>
-  <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-    <div class="seg" id="pin-toggle">
-      <button aria-pressed="true" data-v="off">Solto</button>
-      <button aria-pressed="false" data-v="on">Travado</button>
-    </div>
-    <div class="seg" id="theme-toggle">
-      <button aria-pressed="true" data-v="light">Claro</button>
-      <button aria-pressed="false" data-v="dark">Escuro</button>
-    </div>
+  <div style="display:flex; gap:18px; align-items:center; flex-wrap:wrap;">
+    <label class="switchbar">
+      <span class="switchlabel">Fixar menu</span>
+      <span class="switch">
+        <input type="checkbox" id="pin-checkbox">
+        <span class="switch-track"></span>
+        <span class="switch-thumb"></span>
+      </span>
+    </label>
+    <label class="switch theme-switch" aria-label="Alternar aparência clara ou escura">
+      <input type="checkbox" id="theme-checkbox">
+      <span class="switch-track"></span>
+      <svg class="switch-icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <svg class="switch-icon icon-moon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <span class="switch-thumb"></span>
+    </label>
   </div>
 </div>
 
@@ -550,14 +573,15 @@ function seg(id, onChange){
 }
 function applyTheme(theme, rerender){
   document.documentElement.setAttribute('data-theme', theme);
-  document.querySelectorAll('#theme-toggle button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===theme)));
+  const cb = document.getElementById('theme-checkbox');
+  if(cb) cb.checked = theme==='dark';
   try{ localStorage.setItem('dashboard-theme', theme); }catch(e){}
   if(rerender){
     safeRun(render, 'gráficos (troca de tema)');
     safeRun(renderPadroes, 'Padrões (troca de tema)');
   }
 }
-seg('theme-toggle', v=>applyTheme(v, true));
+document.getElementById('theme-checkbox').addEventListener('change', e=>applyTheme(e.target.checked?'dark':'light', true));
 (function(){
   let saved = null;
   try{ saved = localStorage.getItem('dashboard-theme'); }catch(e){}
@@ -607,10 +631,11 @@ function applyPin(state, persist){
     wrap.style.display = 'none';
   }
   syncDynamicSticky();
-  document.querySelectorAll('#pin-toggle button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===state)));
+  const cb = document.getElementById('pin-checkbox');
+  if(cb) cb.checked = headerPinned;
   if(persist!==false){ try{ localStorage.setItem('dashboard-header-pin', state); }catch(e){} }
 }
-seg('pin-toggle', v=>applyPin(v, true));
+document.getElementById('pin-checkbox').addEventListener('change', e=>applyPin(e.target.checked?'on':'off', true));
 (function(){
   let savedPin = null;
   try{ savedPin = localStorage.getItem('dashboard-header-pin'); }catch(e){}
