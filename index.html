@@ -203,6 +203,10 @@ tbody tr:last-child td{border-bottom:none;}
         <label for="fp-status">Status do pedido</label>
         <select id="fp-status"><option value="all">Todos os status</option></select>
       </div>
+      <div class="field" id="field-tamanho-search" style="display:none;">
+        <label for="f-text-tamanho">Buscar produto</label>
+        <input type="text" id="f-text-tamanho" placeholder="ex: alpargata">
+      </div>
       <span class="hint" id="fp-summary"></span>
     </div>
   </div>
@@ -249,17 +253,9 @@ tbody tr:last-child td{border-bottom:none;}
   </div>
 
   <div class="subpanel" id="padpanel-tamanho">
-    <div class="card">
-      <div class="filterbar">
-        <div class="field">
-          <label for="f-text-tamanho">Buscar produto</label>
-          <input type="text" id="f-text-tamanho" placeholder="ex: alpargata">
-        </div>
-        <span class="hint" id="tamanho-summary"></span>
-      </div>
-    </div>
     <div class="section-title">Vendas por tamanho</div>
     <p class="footnote" style="margin-top:-6px;">Considera apenas tamanhos numéricos de calçado (33 a 44); acessórios e itens sem tamanho não entram nessa análise.</p>
+    <p class="footnote" id="tamanho-summary"></p>
     <div class="chartwrap" id="chartwrap-tamanho" style="height:280px;"><canvas id="chart-tamanho" role="img" aria-label="Receita e quantidade vendida por tamanho"></canvas></div>
     <div class="tablewrap maxh"><table id="table-tamanho"><thead></thead><tbody></tbody></table></div>
   </div>
@@ -504,6 +500,7 @@ function switchPadroesSub(name){
     document.getElementById('padpanel-'+n).classList.toggle('active', n===name);
     document.getElementById('padbtn-'+n).setAttribute('aria-selected', n===name);
   });
+  document.getElementById('field-tamanho-search').style.display = name==='tamanho' ? '' : 'none';
   syncDynamicSticky();
 }
 
