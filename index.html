@@ -1723,14 +1723,18 @@ document.querySelectorAll('.infotip').forEach(icon=>{
   const box = icon.querySelector('.tooltip-box');
   if(!box) return;
   function position(){
-    const r = icon.getBoundingClientRect();
-    const boxWidth = 230;
-    let left = r.left + r.width/2;
-    left = Math.max(boxWidth/2+8, Math.min(left, window.innerWidth - boxWidth/2 - 8));
+    box.style.transform = 'none';
     box.style.display = 'block';
+    box.style.left = '0px';
+    box.style.top = '0px';
+    const r = icon.getBoundingClientRect();
+    const boxRect = box.getBoundingClientRect();
+    let left = r.left + r.width/2 - boxRect.width/2;
+    left = Math.max(8, Math.min(left, window.innerWidth - boxRect.width - 8));
+    let top = r.top - boxRect.height - 6;
+    if(top < 8) top = r.bottom + 6;
     box.style.left = left + 'px';
-    box.style.top = (r.top - 6) + 'px';
-    box.style.transform = 'translate(-50%, -100%)';
+    box.style.top = top + 'px';
   }
   function hide(){ box.style.display = 'none'; }
   icon.addEventListener('mouseenter', position);
