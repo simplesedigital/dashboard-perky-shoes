@@ -557,6 +557,15 @@ function monthKey(dateStr){ return dateStr.slice(0,7); }
 
 const sortState = {};
 
+/* Celula padrao "produto/referencia": nome do produto em destaque, referencia abaixo (mudo). */
+function productCell(name, ref){
+  return `<div>${name||'—'}</div><div class="pname">${ref||'—'}</div>`;
+}
+/* Celula padrao "tamanho/sku": tamanho em destaque, sku abaixo (mudo). */
+function sizeCell(tamanho, sku){
+  return `<div>${tamanho||'—'}</div><div class="pname">${sku||'—'}</div>`;
+}
+
 function th(tableId, key, label, type, extraCls){
   const st = sortState[tableId];
   const active = st && st.key===key;
@@ -863,7 +872,7 @@ function renderTable(tableId, entries, metricKey){
   table.querySelector('thead').innerHTML = `<tr>
     ${th(tableId,'rank','#','number')}
     ${th(tableId,'classe','Classe','text')}
-    ${th(tableId,'name','Referência / produto','text')}
+    ${th(tableId,'name','Produto/Referência','text')}
     ${th(tableId,'value',metricLabel,'number','num')}
     ${th(tableId,'cumPct','% acum.','number','num')}
     ${th(tableId,'siteShare','% do site','number','num')}
@@ -889,7 +898,7 @@ function renderTable(tableId, entries, metricKey){
     return `<tr>
       <td class="num">${e.rank}</td>
       <td><span class="badge ${badgeClass}">${e.classe}</span></td>
-      <td><div>${e.ref}</div><div class="pname">${e.name}</div></td>
+      <td>${productCell(e.name, e.ref)}</td>
       <td class="num">${metricStr}</td>
       <td class="num">${fmtPctPlain(e.cumPct)}</td>
       <td class="num">${fmtPctPlain(e.siteShare)}</td>
@@ -1078,7 +1087,8 @@ function renderBarChart(canvasId, labels, values, metricLabel, horizontal, wrapI
 
 function renderSortableTable(tableId, columns, rows, emptyMsg){
   const table = document.getElementById(tableId);
-  table.querySelector('thead').innerHTML = '<tr>' + columns.map((c,i)=> th(tableId, c.key, c.label, c.type, i===0?'':'num')).join('') + '</tr>';
+  const clsFor = (c,i)=> i===0 ? '' : (c.cellClass!==undefined ? c.cellClass : 'num');
+  table.querySelector('thead').innerHTML = '<tr>' + columns.map((c,i)=> th(tableId, c.key, c.label, c.type, clsFor(c,i))).join('') + '</tr>';
   const tbody = table.querySelector('tbody');
   if(rows.length===0){
     tbody.innerHTML = `<tr><td colspan="${columns.length}"><div class="emptystate">${emptyMsg||'Nenhum dado no período selecionado.'}</div></td></tr>`;
@@ -1087,7 +1097,10 @@ function renderSortableTable(tableId, columns, rows, emptyMsg){
   const accessors = {};
   columns.forEach(c=>{ accessors[c.key] = c.sortValue; });
   const sorted = applySort(rows, sortState[tableId], accessors);
-  tbody.innerHTML = sorted.map(row=>'<tr>' + columns.map((c,i)=> i===0?`<td>${c.format(row)}</td>`:`<td class="num">${c.format(row)}</td>`).join('') + '</tr>').join('');
+  tbody.innerHTML = sorted.map(row=>'<tr>' + columns.map((c,i)=>{
+    const cls = clsFor(c,i);
+    return `<td${cls?` class="${cls}"`:''}>${c.format(row)}</td>`;
+  }).join('') + '</tr>').join('');
 }
 
 const PERIOD_COLUMNS = (dimLabel) => [
@@ -1377,8 +1390,7 @@ function renderEstoque(){
 
   const tRef = document.getElementById('table-estoque-ref');
   tRef.querySelector('thead').innerHTML = `<tr>
-    ${th('table-estoque-ref','ref','Referência','text')}
-    ${th('table-estoque-ref','nome','Produto','text')}
+    ${th('table-estoque-ref','nome','Produto/Referência','text')}
     ${th('table-estoque-ref','total','Estoque total','number','num')}
     ${th('table-estoque-ref','diffTotal','Δ (dia ant.)','number','num')}
     ${th('table-estoque-ref','statusLabel','Grade','text','center')}
@@ -1392,11 +1404,11 @@ function renderEstoque(){
   if(!sortState['table-estoque-ref']) refSorted.sort((a,b)=>a.ref.localeCompare(b.ref));
   tRef.querySelector('tbody').innerHTML = refSorted.map(e=>{
     const cls = e.statusKey==='cheia'?'status-cheia':(e.statusKey==='quebrada'?'status-quebrada':'status-vazio');
-    return `<tr><td>${e.ref}</td><td class="pname">${e.nome}</td><td class="num">${fmtInt.format(e.total)}</td>
+    return `<tr><td>${productCell(e.nome, e.ref)}</td><td class="num">${fmtInt.format(e.total)}</td>
       <td class="num">${diffCellInt(e.diffTotal)}</td>
       <td class="center"><span class="status-pill ${cls}">${e.statusLabel}</span></td>
       <td class="num">${fmtBRL.format(e.receita)}</td><td class="num">${fmtInt.format(e.qtdVendida)}</td></tr>`;
-  }).join('') || `<tr><td colspan="7"><div class="emptystate">Nenhum resultado encontrado.</div></td></tr>`;
+  }).join('') || `<tr><td colspan="6"><div class="emptystate">Nenhum resultado encontrado.</div></td></tr>`;
 
   let skuRows = rows.slice();
   const availFilterVal = availFilterSel.value;
@@ -1413,10 +1425,8 @@ function renderEstoque(){
 
   const tSku = document.getElementById('table-estoque-sku');
   tSku.querySelector('thead').innerHTML = `<tr>
-    ${th('table-estoque-sku','referencia','Referência','text')}
-    ${th('table-estoque-sku','sku','SKU','text')}
-    ${th('table-estoque-sku','nome_produto','Produto','text')}
-    ${th('table-estoque-sku','tamanho','Tamanho','text')}
+    ${th('table-estoque-sku','nome_produto','Produto/Referência','text')}
+    ${th('table-estoque-sku','tamanho','Tamanho/SKU','text')}
     ${th('table-estoque-sku','estoque','Estoque','number','num')}
     ${th('table-estoque-sku','diffEstoque','Δ (dia ant.)','number','num')}
     ${th('table-estoque-sku','disponivel','Disponível','text','center')}
@@ -1431,12 +1441,12 @@ function renderEstoque(){
   });
   if(!sortState['table-estoque-sku']) skuSorted.sort((a,b)=> a.referencia.localeCompare(b.referencia) || (a.tamanho||'').localeCompare(b.tamanho||''));
   tSku.querySelector('tbody').innerHTML = skuSorted.map(r=>`<tr>
-    <td>${r.referencia}</td><td>${r.sku}</td><td class="pname">${r.nome_produto}</td><td>${r.tamanho||'—'}</td>
+    <td>${productCell(r.nome_produto, r.referencia)}</td><td>${sizeCell(r.tamanho, r.sku)}</td>
     <td class="num">${fmtInt.format(r.estoque)}</td>
     <td class="num">${diffCellInt(r.diffEstoque)}</td>
     <td class="center">${r.disponivel && r.estoque>0 ? '<i class="dot-ok">&#10003;</i>' : '<i class="dot-no">&#10007;</i>'}</td>
     <td class="num">${fmtBRL.format(r.receita)}</td><td class="num">${fmtInt.format(r.qtdVendida)}</td>
-  </tr>`).join('') || `<tr><td colspan="9"><div class="emptystate">Nenhum resultado encontrado.</div></td></tr>`;
+  </tr>`).join('') || `<tr><td colspan="7"><div class="emptystate">Nenhum resultado encontrado.</div></td></tr>`;
 
   const rupturas = refEntries.filter(e=>e.statusKey==='vazio').length;
   document.getElementById('estoque-summary').textContent = `${refEntries.length} referências · ${rupturas} em ruptura total`;
@@ -1494,8 +1504,7 @@ function renderDesconto(){
 
   const table = document.getElementById('table-desconto');
   table.querySelector('thead').innerHTML = `<tr>
-    ${th('table-desconto','referencia','Referência','text')}
-    ${th('table-desconto','nome_produto','Produto','text')}
+    ${th('table-desconto','nome_produto','Produto/Referência','text')}
     ${th('table-desconto','preco_cheio','Preço cheio','number','num')}
     ${th('table-desconto','preco_com_desconto','Preço com desconto','number','num')}
     ${th('table-desconto','desconto_pct','Desconto','number','num')}
@@ -1515,7 +1524,7 @@ function renderDesconto(){
   table.querySelector('tbody').innerHTML = sorted.map(r=>{
     const emPromo = r.desconto_pct>0;
     return `<tr>
-      <td>${r.referencia||'—'}</td><td class="pname">${r.nome_produto}</td>
+      <td>${productCell(r.nome_produto, r.referencia)}</td>
       <td class="num">${r.preco_cheio!=null?fmtBRL.format(r.preco_cheio):'—'}</td>
       <td class="num">${r.preco_com_desconto!=null?fmtBRL.format(r.preco_com_desconto):'—'}</td>
       <td class="num">${fmtPctPlain(r.desconto_pct)}</td>
@@ -1523,7 +1532,7 @@ function renderDesconto(){
       <td class="center">${emPromo?'<span class="badge badge-b">Em promoção</span>':'<span class="badge badge-c">Preço cheio</span>'}</td>
       <td class="num">${fmtBRL.format(r.receita)}</td><td class="num">${fmtInt.format(r.qtdVendida)}</td>
     </tr>`;
-  }).join('') || `<tr><td colspan="9"><div class="emptystate">Nenhum resultado encontrado.</div></td></tr>`;
+  }).join('') || `<tr><td colspan="8"><div class="emptystate">Nenhum resultado encontrado.</div></td></tr>`;
 
   const emPromoCount = rows.filter(r=>r.desconto_pct>0).length;
   document.getElementById('desconto-summary').textContent = `${rows.length} produtos · ${emPromoCount} em promoção`;
@@ -1557,7 +1566,7 @@ function renderCrossSell(){
 
   const tableSame = document.getElementById('table-same-order');
   tableSame.querySelector('thead').innerHTML = `<tr>
-    ${th('table-same-order','name_a','Produto','text')}
+    ${th('table-same-order','name_a','Produto/Referência','text')}
     ${th('table-same-order','name_b','Comprado junto','text')}
     ${th('table-same-order','pedidos_juntos','Pedidos juntos','number','num')}
     ${th('table-same-order','pct','% dos pedidos','number','num')}
@@ -1567,7 +1576,7 @@ function renderCrossSell(){
   });
   if(!sortState['table-same-order']) sortedSame.sort((a,b)=> b.pedidos_juntos - a.pedidos_juntos);
   tableSame.querySelector('tbody').innerHTML = sortedSame.map(r=>`<tr>
-    <td class="pname">${r.name_a}</td><td class="pname">${r.name_b}</td>
+    <td>${productCell(r.name_a, r.ref_a)}</td><td>${productCell(r.name_b, r.ref_b)}</td>
     <td class="num">${fmtInt.format(r.pedidos_juntos)}</td>
     <td class="num">${fmtPctPlain(r.pct)}</td>
   </tr>`).join('') || `<tr><td colspan="4"><div class="emptystate">Nenhum resultado encontrado.</div></td></tr>`;
@@ -1584,13 +1593,13 @@ function renderCrossSell(){
   });
   if(!sortState['table-future']) sortedFuture.sort((a,b)=> b.clientes - a.clientes);
   tableFuture.querySelector('tbody').innerHTML = sortedFuture.map(r=>`<tr>
-    <td class="pname">${r.name_a}</td><td class="pname">${r.name_b}</td>
+    <td>${productCell(r.name_a, r.ref_a)}</td><td>${productCell(r.name_b, r.ref_b)}</td>
     <td class="num">${fmtInt.format(r.clientes)}</td><td class="num">${fmtPctPlain(r.pct_a)}</td>
   </tr>`).join('') || `<tr><td colspan="4"><div class="emptystate">Nenhum resultado encontrado.</div></td></tr>`;
 
   const tableRepurchase = document.getElementById('table-repurchase');
   tableRepurchase.querySelector('thead').innerHTML = `<tr>
-    ${th('table-repurchase','name','Produto','text')}
+    ${th('table-repurchase','name','Produto/Referência','text')}
     ${th('table-repurchase','media_dias','Média de dias','number','num')}
     ${th('table-repurchase','amostras','Amostras','number','num')}
   </tr>`;
@@ -1599,7 +1608,7 @@ function renderCrossSell(){
   });
   if(!sortState['table-repurchase']) sortedRepurchase.sort((a,b)=> b.amostras - a.amostras);
   tableRepurchase.querySelector('tbody').innerHTML = sortedRepurchase.map(r=>`<tr>
-    <td class="pname">${r.name}</td>
+    <td>${productCell(r.name, r.ref)}</td>
     <td class="num">${r.media_dias.toFixed(1).replace('.', ',')} dias</td>
     <td class="num">${fmtInt.format(r.amostras)}</td>
   </tr>`).join('') || `<tr><td colspan="3"><div class="emptystate">Nenhum resultado encontrado.</div></td></tr>`;
@@ -1618,13 +1627,21 @@ const aviseMeData = DATA.avise_me || [];
 const statusAviseMeSel = document.getElementById('f-status-avise-me');
 const textFilterAviseMe = document.getElementById('f-text-avise-me');
 
+function tamanhoFromSku(sku){
+  if(!sku) return '';
+  const idx = sku.lastIndexOf('-');
+  if(idx<0) return '';
+  const t = sku.slice(idx+1);
+  return /^\d+$/.test(t) ? t : '';
+}
+
 const AVISE_ME_COLUMNS = [
   {key:'data', label:'Data', type:'text', format:r=>r.data.split('-').reverse().join('/'), sortValue:r=>r.data},
-  {key:'email', label:'E-mail', type:'text', format:r=>r.email, sortValue:r=>r.email},
-  {key:'phone', label:'Telefone', type:'text', format:r=>r.phone||'—', sortValue:r=>r.phone||''},
-  {key:'product_name', label:'Produto', type:'text', format:r=>r.product_name, sortValue:r=>r.product_name},
-  {key:'sku', label:'SKU', type:'text', format:r=>r.sku, sortValue:r=>r.sku},
-  {key:'atendido', label:'Atendido', type:'text', format:r=> r.atendido
+  {key:'email', label:'E-mail', type:'text', cellClass:'', format:r=>r.email, sortValue:r=>r.email},
+  {key:'phone', label:'Telefone', type:'text', cellClass:'', format:r=>r.phone||'—', sortValue:r=>r.phone||''},
+  {key:'product_name', label:'Produto/Referência', type:'text', cellClass:'', format:r=>productCell(r.product_name, r.referencia), sortValue:r=>r.product_name},
+  {key:'sku', label:'Tamanho/SKU', type:'text', cellClass:'', format:r=>sizeCell(tamanhoFromSku(r.sku), r.sku), sortValue:r=>r.sku},
+  {key:'atendido', label:'Atendido', type:'text', cellClass:'center', format:r=> r.atendido
       ? '<span class="badge badge-a">✓ Atendido</span>'
       : '<span class="badge badge-crit">✗ Não atendido</span>',
     sortValue:r=>r.atendido?1:0},
