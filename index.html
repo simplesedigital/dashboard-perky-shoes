@@ -76,8 +76,7 @@ thead th.sortable:hover{color:var(--text-primary);}
 .sort-arrow{color:var(--accent); font-size:10px;}
 .hint{font-size:12px; color:var(--text-muted); margin-left:auto; align-self:center;}
 .infotip{position:relative; display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; margin-left:5px; border-radius:50%; background:var(--surface-2); border:1px solid var(--border-strong); color:var(--text-muted); font-size:10px; font-weight:700; font-style:normal; cursor:help; vertical-align:middle;}
-.infotip .tooltip-box{display:none; position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); width:230px; background:var(--surface-2); color:var(--text-primary); border:1px solid var(--border-strong); border-radius:8px; padding:8px 10px; font-size:11.5px; font-weight:400; line-height:1.4; box-shadow:0 4px 16px rgba(0,0,0,.25); z-index:30; white-space:normal; cursor:auto;}
-.infotip:hover .tooltip-box, .infotip:focus .tooltip-box, .infotip:focus-within .tooltip-box{display:block;}
+.infotip .tooltip-box{display:none; position:fixed; width:230px; background:var(--surface-2); color:var(--text-primary); border:1px solid var(--border-strong); border-radius:8px; padding:8px 10px; font-size:11.5px; font-weight:400; line-height:1.4; box-shadow:0 4px 16px rgba(0,0,0,.25); z-index:9999; white-space:normal; cursor:auto;}
 .kpirow{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:1rem;}
 .kpi{background:var(--surface-1); border-radius:var(--radius); padding:1rem;}
 .kpi .label{font-size:12px; color:var(--text-secondary); margin:0 0 4px;}
@@ -479,11 +478,21 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="card">
     <div class="filterbar">
       <div class="field">
-        <label for="f-status-avise-me">Status</label>
-        <select id="f-status-avise-me">
+        <label for="f-reabastecido-avise-me">Reabastecido
+          <span class="infotip" tabindex="0" role="img" aria-label="Reabastecido: o produto voltou a ter estoque em algum momento depois do registro do aviso, independente de o cliente ter comprado. Atendido: o cliente comprou esse mesmo tamanho (SKU) depois do aviso.">i<span class="tooltip-box"><b>Reabastecido</b>: o produto voltou a ter estoque em algum momento depois do registro do aviso, independente de o cliente ter comprado.<br><br><b>Atendido</b>: o cliente comprou esse mesmo tamanho (SKU) depois do aviso.</span></span>
+        </label>
+        <select id="f-reabastecido-avise-me">
           <option value="all">Todos</option>
-          <option value="atendido">Atendido</option>
-          <option value="nao-atendido">Não atendido</option>
+          <option value="sim">Sim</option>
+          <option value="nao">Não</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-atendido-avise-me">Atendido</label>
+        <select id="f-atendido-avise-me">
+          <option value="all">Todos</option>
+          <option value="sim">Sim</option>
+          <option value="nao">Não</option>
         </select>
       </div>
       <div class="field">
@@ -1643,7 +1652,8 @@ textFilterCross.addEventListener('input', renderCrossSell);
 /* ---------------- TAB 5: AVISE-ME ---------------- */
 
 const aviseMeData = DATA.avise_me || [];
-const statusAviseMeSel = document.getElementById('f-status-avise-me');
+const reabastecidoAviseMeSel = document.getElementById('f-reabastecido-avise-me');
+const atendidoAviseMeSel = document.getElementById('f-atendido-avise-me');
 const textFilterAviseMe = document.getElementById('f-text-avise-me');
 
 function tamanhoFromSku(sku){
@@ -1671,22 +1681,27 @@ const AVISE_ME_COLUMNS = [
 ];
 
 function renderAviseMe(){
-  const statusVal = statusAviseMeSel.value;
+  const reabastecidoVal = reabastecidoAviseMeSel.value;
+  const atendidoVal = atendidoAviseMeSel.value;
   const filterText = (textFilterAviseMe.value||'').trim().toLowerCase();
 
   let rows = aviseMeData;
-  if(statusVal==='atendido') rows = rows.filter(r=>r.atendido);
-  else if(statusVal==='nao-atendido') rows = rows.filter(r=>!r.atendido);
+  if(reabastecidoVal==='sim') rows = rows.filter(r=>r.reabastecido);
+  else if(reabastecidoVal==='nao') rows = rows.filter(r=>!r.reabastecido);
+  if(atendidoVal==='sim') rows = rows.filter(r=>r.atendido);
+  else if(atendidoVal==='nao') rows = rows.filter(r=>!r.atendido);
   if(filterText) rows = rows.filter(r=> matchNameOrCode(filterText, r.product_name, r.referencia, r.sku));
   if(!sortState['table-avise-me']) rows = rows.slice().sort((a,b)=> b.data.localeCompare(a.data));
 
   renderSortableTable('table-avise-me', AVISE_ME_COLUMNS, rows);
 
   const atendidos = rows.filter(r=>r.atendido).length;
+  const reabastecidos = rows.filter(r=>r.reabastecido).length;
   document.getElementById('avise-me-summary').textContent =
-    `${fmtInt.format(rows.length)} registros · ${fmtInt.format(atendidos)} atendidos`;
+    `${fmtInt.format(rows.length)} registros · ${fmtInt.format(reabastecidos)} reabastecidos · ${fmtInt.format(atendidos)} atendidos`;
 }
-statusAviseMeSel.addEventListener('change', renderAviseMe);
+reabastecidoAviseMeSel.addEventListener('change', renderAviseMe);
+atendidoAviseMeSel.addEventListener('change', renderAviseMe);
 textFilterAviseMe.addEventListener('input', renderAviseMe);
 attachSort('table-avise-me', renderAviseMe);
 
@@ -1701,4 +1716,26 @@ safeRun(renderEstoque, 'aba Estoque por dia');
 safeRun(renderDesconto, 'aba Descontos por dia');
 safeRun(renderCrossSell, 'aba Cross-sell');
 safeRun(renderAviseMe, 'aba Avise-me');
+
+/* Tooltips (.infotip) usam position:fixed calculado via JS pra nao serem cortados
+   por containers de tabela com overflow (ex: dentro de <thead> com scroll). */
+document.querySelectorAll('.infotip').forEach(icon=>{
+  const box = icon.querySelector('.tooltip-box');
+  if(!box) return;
+  function position(){
+    const r = icon.getBoundingClientRect();
+    const boxWidth = 230;
+    let left = r.left + r.width/2;
+    left = Math.max(boxWidth/2+8, Math.min(left, window.innerWidth - boxWidth/2 - 8));
+    box.style.display = 'block';
+    box.style.left = left + 'px';
+    box.style.top = (r.top - 6) + 'px';
+    box.style.transform = 'translate(-50%, -100%)';
+  }
+  function hide(){ box.style.display = 'none'; }
+  icon.addEventListener('mouseenter', position);
+  icon.addEventListener('mouseleave', hide);
+  icon.addEventListener('focus', position);
+  icon.addEventListener('blur', hide);
+});
 </script>
