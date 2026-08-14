@@ -479,7 +479,7 @@ tbody tr:last-child td{border-bottom:none;}
     <div class="filterbar">
       <div class="field">
         <label for="f-reabastecido-avise-me">Reabastecido
-          <span class="infotip" tabindex="0" role="img" aria-label="Reabastecido: o produto voltou a ter estoque em algum momento depois do registro do aviso, independente de o cliente ter comprado. Atendido: o cliente comprou esse mesmo tamanho (SKU) depois do aviso.">i<span class="tooltip-box"><b>Reabastecido</b>: o produto voltou a ter estoque em algum momento depois do registro do aviso, independente de o cliente ter comprado.<br><br><b>Atendido</b>: o cliente comprou esse mesmo tamanho (SKU) depois do aviso.</span></span>
+          <span class="infotip" tabindex="0" role="img" aria-label="O produto voltou a ter estoque em algum momento depois do registro do aviso, independente de o cliente ter comprado.">i<span class="tooltip-box">O produto voltou a ter estoque em algum momento depois do registro do aviso, independente de o cliente ter comprado.</span></span>
         </label>
         <select id="f-reabastecido-avise-me">
           <option value="all">Todos</option>
@@ -488,7 +488,9 @@ tbody tr:last-child td{border-bottom:none;}
         </select>
       </div>
       <div class="field">
-        <label for="f-atendido-avise-me">Atendido</label>
+        <label for="f-atendido-avise-me">Atendido
+          <span class="infotip" tabindex="0" role="img" aria-label="O cliente comprou esse mesmo tamanho (SKU) depois do aviso.">i<span class="tooltip-box">O cliente comprou esse mesmo tamanho (SKU) depois do aviso.</span></span>
+        </label>
         <select id="f-atendido-avise-me">
           <option value="all">Todos</option>
           <option value="sim">Sim</option>
