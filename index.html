@@ -281,7 +281,7 @@ tbody tr:last-child td{border-bottom:none;}
     <button class="tabbtn" id="tabbtn-abc" role="tab" aria-selected="true" onclick="switchTab('abc')">Curva ABC</button>
     <button class="tabbtn" id="tabbtn-estoque" role="tab" aria-selected="false" onclick="switchTab('estoque')">Estoque por dia</button>
     <button class="tabbtn" id="tabbtn-desconto" role="tab" aria-selected="false" onclick="switchTab('desconto')">Descontos por dia</button>
-    <button class="tabbtn" id="tabbtn-crosssell" role="tab" aria-selected="false" onclick="switchTab('crosssell')">Cross-sell</button>
+    <button class="tabbtn" id="tabbtn-crosssell" role="tab" aria-selected="false" onclick="switchTab('crosssell')">Venda Cruzada</button>
     <button class="tabbtn" id="tabbtn-avise-me" role="tab" aria-selected="false" onclick="switchTab('avise-me')">Demanda Reprimida</button>
   </div>
 
@@ -428,7 +428,7 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="tablewrap maxh"><table id="table-desconto"><thead></thead><tbody></tbody></table></div>
 </div>
 
-<!-- ================= TAB 4: CROSS-SELL ================= -->
+<!-- ================= TAB 4: VENDA CRUZADA ================= -->
 <div class="panel" id="panel-crosssell">
   <div class="card">
     <div class="filterbar">
@@ -1575,7 +1575,7 @@ textFilterDesconto.addEventListener('input', renderDesconto);
 [statusDescontoSel, descontoValorSel].forEach(el=>el.addEventListener('change', renderDesconto));
 attachSort('table-desconto', renderDesconto);
 
-/* ---------------- TAB 4: CROSS-SELL ---------------- */
+/* ---------------- TAB 4: VENDA CRUZADA ---------------- */
 
 const crossDataByPeriod = DATA.crosssell || {};
 const periodoCrossSel = document.getElementById('f-periodo-cross');
@@ -1716,7 +1716,7 @@ safeRun(renderPadroes, 'aba Padrões');
 safeRun(render, 'aba Curva ABC');
 safeRun(renderEstoque, 'aba Estoque por dia');
 safeRun(renderDesconto, 'aba Descontos por dia');
-safeRun(renderCrossSell, 'aba Cross-sell');
+safeRun(renderCrossSell, 'aba Venda Cruzada');
 safeRun(renderAviseMe, 'aba Avise-me');
 
 /* Tooltips (.infotip) usam position:fixed calculado via JS pra nao serem cortados
