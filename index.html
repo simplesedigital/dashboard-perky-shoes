@@ -522,6 +522,12 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="card">
     <div class="filterbar">
       <div class="field">
+        <label>Período</label>
+        <button type="button" class="dr-trigger" id="am-daterange-btn"></button>
+        <input type="date" id="am-start" style="display:none;">
+        <input type="date" id="am-end" style="display:none;">
+      </div>
+      <div class="field">
         <label for="f-reabastecido-avise-me">Reabastecido
           <span class="infotip" tabindex="0" role="img" aria-label="O produto voltou a ter estoque em algum momento depois do registro do aviso, independente de o cliente ter comprado.">i<span class="tooltip-box">O produto voltou a ter estoque em algum momento depois do registro do aviso, independente de o cliente ter comprado.</span></span>
         </label>
@@ -1894,6 +1900,22 @@ const reabastecidoAviseMeSel = document.getElementById('f-reabastecido-avise-me'
 const atendidoAviseMeSel = document.getElementById('f-atendido-avise-me');
 const textFilterAviseMe = document.getElementById('f-text-avise-me');
 
+const amStartInput = document.getElementById('am-start');
+const amEndInput = document.getElementById('am-end');
+{
+  const amDates = aviseMeData.map(r=>r.data).filter(Boolean).sort();
+  const amMinDate = amDates[0], amMaxDate = amDates[amDates.length-1];
+  if(amMaxDate){
+    const amDefaultStart = addDays(amMaxDate, -29);
+    amEndInput.value = amMaxDate;
+    amStartInput.value = amDefaultStart < amMinDate ? amMinDate : amDefaultStart;
+    amStartInput.min = amMinDate; amEndInput.min = amMinDate;
+    amStartInput.max = amMaxDate; amEndInput.max = amMaxDate;
+    initDateRangePicker('am-daterange-btn', 'am-start', 'am-end');
+  }
+}
+[amStartInput, amEndInput].forEach(el=>el.addEventListener('change', renderAviseMe));
+
 function tamanhoFromSku(sku){
   if(!sku) return '';
   const idx = sku.lastIndexOf('-');
@@ -1919,11 +1941,13 @@ const AVISE_ME_COLUMNS = [
 ];
 
 function renderAviseMe(){
+  const start = amStartInput.value, end = amEndInput.value;
   const reabastecidoVal = reabastecidoAviseMeSel.value;
   const atendidoVal = atendidoAviseMeSel.value;
   const filterText = (textFilterAviseMe.value||'').trim().toLowerCase();
 
   let rows = aviseMeData;
+  if(start && end) rows = rows.filter(r=> r.data>=start && r.data<=end);
   if(reabastecidoVal==='sim') rows = rows.filter(r=>r.reabastecido);
   else if(reabastecidoVal==='nao') rows = rows.filter(r=>!r.reabastecido);
   if(atendidoVal==='sim') rows = rows.filter(r=>r.atendido);
