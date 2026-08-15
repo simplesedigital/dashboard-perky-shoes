@@ -80,8 +80,8 @@ thead th.sortable:hover{color:var(--text-primary);}
 .dr-trigger{display:inline-flex; align-items:center; gap:6px; background:var(--surface-2); color:var(--text-primary); border:1px solid var(--border-strong); border-radius:6px; padding:6px 10px; font-size:13px; font-family:var(--font-sans); height:33px; box-sizing:border-box; cursor:pointer; white-space:nowrap;}
 .dr-trigger:hover{border-color:var(--accent);}
 .dr-popup{display:none; position:fixed; background:var(--surface-1); border:1px solid var(--border-strong); border-radius:var(--radius); box-shadow:0 8px 30px rgba(0,0,0,.35); padding:14px; z-index:9999;}
-.dr-presets{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid var(--border); max-width:480px;}
-.dr-presets button{background:var(--surface-2); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:12px; cursor:pointer; font-family:var(--font-sans);}
+.dr-presets{display:flex; flex-wrap:nowrap; gap:6px; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid var(--border);}
+.dr-presets button{background:var(--surface-2); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:12px; cursor:pointer; font-family:var(--font-sans); white-space:nowrap; flex:none;}
 .dr-presets button:hover{border-color:var(--accent); color:var(--text-primary);}
 .dr-presets button.active{background:var(--accent); color:#fff; border-color:var(--accent);}
 .dr-calendars{display:flex; gap:20px; position:relative;}
