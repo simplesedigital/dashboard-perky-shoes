@@ -505,6 +505,7 @@ tbody tr:last-child td{border-bottom:none;}
         <label for="f-text-cross">Buscar produto</label>
         <input type="text" id="f-text-cross" placeholder="ex: alpargata">
       </div>
+      <span class="hint" id="cross-compare-hint"></span>
     </div>
   </div>
 
@@ -1874,6 +1875,7 @@ const minsupCrossSel = document.getElementById('f-minsup-cross');
 const textFilterCross = document.getElementById('f-text-cross');
 
 function renderCrossSell(){
+  document.getElementById('cross-compare-hint').textContent = `Baseado em: ${periodoCrossSel.options[periodoCrossSel.selectedIndex].text}`;
   const crossData = crossDataByPeriod[periodoCrossSel.value] || {same_order_pairs:[], future_pairs:[], repurchase_time:[]};
   const minsup = +minsupCrossSel.value;
   const filterText = (textFilterCross.value||'').trim().toLowerCase();
