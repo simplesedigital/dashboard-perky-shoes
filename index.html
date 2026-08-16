@@ -1947,6 +1947,7 @@ const AVISE_ME_COLUMNS = [
 
 const AVISE_ME_RANKING_COLUMNS = [
   {key:'name', label:'Produto/Referência', type:'text', cellClass:'', format:r=>productCell(r.name, r.ref), sortValue:r=>r.name},
+  {key:'sku', label:'Tamanho/SKU', type:'text', cellClass:'', format:r=>sizeCell(tamanhoFromSku(r.sku), r.sku), sortValue:r=>r.sku},
   {key:'total', label:'Pedidos de aviso', type:'number', format:r=>fmtInt.format(r.total), sortValue:r=>r.total},
   {key:'reabastecidos', label:'Reabastecidos', type:'number', format:r=>fmtInt.format(r.reabastecidos), sortValue:r=>r.reabastecidos},
   {key:'atendidos', label:'Atendidos', type:'number', format:r=>fmtInt.format(r.atendidos), sortValue:r=>r.atendidos},
@@ -1977,8 +1978,8 @@ function renderAviseMe(){
 
   const rankMap = {};
   for(const r of rows){
-    const key = r.referencia || r.product_name;
-    if(!rankMap[key]) rankMap[key] = {ref: r.referencia, name: r.product_name, total:0, reabastecidos:0, atendidos:0};
+    const key = r.sku || r.referencia || r.product_name;
+    if(!rankMap[key]) rankMap[key] = {ref: r.referencia, name: r.product_name, sku: r.sku, total:0, reabastecidos:0, atendidos:0};
     rankMap[key].total++;
     if(r.reabastecido) rankMap[key].reabastecidos++;
     if(r.atendido) rankMap[key].atendidos++;
