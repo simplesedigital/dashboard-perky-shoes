@@ -554,7 +554,12 @@ tbody tr:last-child td{border-bottom:none;}
       <span class="hint" id="avise-me-summary"></span>
     </div>
   </div>
+  <div class="section-title">Todos os registros</div>
   <div class="tablewrap maxh"><table id="table-avise-me"><thead></thead><tbody></tbody></table></div>
+
+  <div class="section-title">Ranking por produto</div>
+  <p class="footnote" style="margin-top:-6px;">Agrupado por produto, considerando os mesmos filtros acima. Ordenado por pedidos de aviso, do maior para o menor.</p>
+  <div class="tablewrap maxh"><table id="table-avise-me-ranking"><thead></thead><tbody></tbody></table></div>
 </div>
 </div>
 
@@ -1940,6 +1945,14 @@ const AVISE_ME_COLUMNS = [
     sortValue:r=>r.atendido?1:0},
 ];
 
+const AVISE_ME_RANKING_COLUMNS = [
+  {key:'name', label:'Produto/Referência', type:'text', cellClass:'', format:r=>productCell(r.name, r.ref), sortValue:r=>r.name},
+  {key:'total', label:'Pedidos de aviso', type:'number', format:r=>fmtInt.format(r.total), sortValue:r=>r.total},
+  {key:'reabastecidos', label:'Reabastecidos', type:'number', format:r=>fmtInt.format(r.reabastecidos), sortValue:r=>r.reabastecidos},
+  {key:'atendidos', label:'Atendidos', type:'number', format:r=>fmtInt.format(r.atendidos), sortValue:r=>r.atendidos},
+  {key:'pctAtendido', label:'% atendido', type:'number', format:r=>fmtPctPlain(r.pctAtendido), sortValue:r=>r.pctAtendido},
+];
+
 function renderAviseMe(){
   const start = amStartInput.value, end = amEndInput.value;
   const reabastecidoVal = reabastecidoAviseMeSel.value;
@@ -1961,11 +1974,24 @@ function renderAviseMe(){
   const reabastecidos = rows.filter(r=>r.reabastecido).length;
   document.getElementById('avise-me-summary').textContent =
     `${fmtInt.format(rows.length)} registros · ${fmtInt.format(reabastecidos)} reabastecidos · ${fmtInt.format(atendidos)} atendidos`;
+
+  const rankMap = {};
+  for(const r of rows){
+    const key = r.referencia || r.product_name;
+    if(!rankMap[key]) rankMap[key] = {ref: r.referencia, name: r.product_name, total:0, reabastecidos:0, atendidos:0};
+    rankMap[key].total++;
+    if(r.reabastecido) rankMap[key].reabastecidos++;
+    if(r.atendido) rankMap[key].atendidos++;
+  }
+  let rankRows = Object.values(rankMap).map(v=>({...v, pctAtendido: v.total>0 ? v.atendidos/v.total*100 : 0}));
+  if(!sortState['table-avise-me-ranking']) rankRows = rankRows.sort((a,b)=> b.total-a.total);
+  renderSortableTable('table-avise-me-ranking', AVISE_ME_RANKING_COLUMNS, rankRows);
 }
 reabastecidoAviseMeSel.addEventListener('change', renderAviseMe);
 atendidoAviseMeSel.addEventListener('change', renderAviseMe);
 textFilterAviseMe.addEventListener('input', renderAviseMe);
 attachSort('table-avise-me', renderAviseMe);
+attachSort('table-avise-me-ranking', renderAviseMe);
 
 /* ---------------- INIT ---------------- */
 function safeRun(fn, label){
