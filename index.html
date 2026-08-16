@@ -267,6 +267,7 @@ tbody tr:last-child td{border-bottom:none;}
         <label for="f-text-tamanho">Buscar produto</label>
         <input type="text" id="f-text-tamanho" placeholder="ex: alpargata">
       </div>
+      <span class="hint" id="fp-compare-hint"></span>
     </div>
   </div>
 
@@ -411,6 +412,7 @@ tbody tr:last-child td{border-bottom:none;}
         <label for="f-text-estoque">Buscar produto</label>
         <input type="text" id="f-text-estoque" placeholder="ex: alpargata">
       </div>
+      <span class="hint" id="estoque-compare-hint"></span>
     </div>
   </div>
 
@@ -468,6 +470,7 @@ tbody tr:last-child td{border-bottom:none;}
         <label for="f-text-desconto">Buscar produto</label>
         <input type="text" id="f-text-desconto" placeholder="ex: alpargata">
       </div>
+      <span class="hint" id="desconto-compare-hint"></span>
     </div>
   </div>
   <div class="kpirow" id="desconto-kpirow"></div>
@@ -554,6 +557,7 @@ tbody tr:last-child td{border-bottom:none;}
         <label for="f-text-avise-me">Buscar produto</label>
         <input type="text" id="f-text-avise-me" placeholder="ex: alpargata">
       </div>
+      <span class="hint" id="am-compare-hint"></span>
     </div>
   </div>
   <div class="kpirow" id="avise-me-kpirow"></div>
@@ -627,6 +631,13 @@ function todayISO(){
 }
 function dayDiff(a,b){
   return Math.round((new Date(b+'T00:00:00Z') - new Date(a+'T00:00:00Z'))/86400000);
+}
+/* Texto "Comparando com X a Y (Z dias)": periodo anterior de mesma duracao. */
+function comparePeriodText(start, end){
+  const dur = dayDiff(start,end)+1;
+  const prevEnd = addDays(start,-1);
+  const prevStart = addDays(prevEnd, -(dur-1));
+  return `Comparando com ${prevStart} a ${prevEnd} (${dur} dias)`;
 }
 function isoWeekStart(dateStr){
   const d = new Date(dateStr+'T00:00:00Z');
@@ -1588,11 +1599,15 @@ function renderPadroes(){
   const orders = filteredOrdersRaw(start, end, status);
   const totalRevenue = orders.reduce((s,o)=>s+o[3],0);
   const fpTicket = orders.length>0 ? totalRevenue/orders.length : 0;
+  const fpDias = dayDiff(start,end)+1;
+  const fpReceitaDia = fpDias>0 ? totalRevenue/fpDias : 0;
   document.getElementById('fp-kpirow').innerHTML = `
     <div class="kpi"><p class="label">Pedidos</p><p class="value">${fmtInt.format(orders.length)}</p><span class="delta flat">no período selecionado</span></div>
     <div class="kpi"><p class="label">Receita no período</p><p class="value">${fmtBRL.format(totalRevenue)}</p><span class="delta flat">soma de todos os pedidos</span></div>
-    <div class="kpi"><p class="label">Ticket médio</p><p class="value">${fmtBRL.format(fpTicket)}</p><span class="delta flat">receita ÷ pedidos</span></div>
+    <div class="kpi"><p class="label">Receita média/dia</p><p class="value">${fmtBRL.format(fpReceitaDia)}</p><span class="delta flat">receita ÷ dias no período</span></div>
+    <div class="kpi"><p class="label">Ticket médio por pedido</p><p class="value">${fmtBRL.format(fpTicket)}</p><span class="delta flat">receita ÷ pedidos</span></div>
   `;
+  document.getElementById('fp-compare-hint').textContent = comparePeriodText(start, end);
   try{
     renderWeekday(orders, start, end);
     renderMonthday(orders, start, end);
@@ -1733,10 +1748,17 @@ function renderEstoque(){
   </tr>`).join('') || `<tr><td colspan="7"><div class="emptystate">Nenhum resultado encontrado.</div></td></tr>`;
 
   const rupturas = refEntries.filter(e=>e.statusKey==='vazio').length;
+  const quebradas = refEntries.filter(e=>e.statusKey==='quebrada').length;
+  const estoqueTotalUnidades = refEntries.reduce((s,e)=>s+e.total, 0);
   document.getElementById('estoque-kpirow').innerHTML = `
-    <div class="kpi"><p class="label">Referências</p><p class="value">${fmtInt.format(refEntries.length)}</p><span class="delta flat">no dia selecionado</span></div>
+    <div class="kpi"><p class="label">Referências no estoque</p><p class="value">${fmtInt.format(refEntries.length)}</p><span class="delta flat">no dia selecionado</span></div>
+    <div class="kpi"><p class="label">Estoque total</p><p class="value">${fmtInt.format(estoqueTotalUnidades)}</p><span class="delta flat">unidades somadas</span></div>
+    <div class="kpi"><p class="label">Grade quebrada</p><p class="value">${fmtInt.format(quebradas)}</p><span class="delta flat">algum tamanho faltando</span></div>
     <div class="kpi"><p class="label">Em ruptura total</p><p class="value">${fmtInt.format(rupturas)}</p><span class="delta flat">grade zerada</span></div>
   `;
+  document.getElementById('estoque-compare-hint').textContent = prevDia
+    ? `Comparando com ${prevDia.split('-').reverse().join('/')} (dia anterior disponível)`
+    : 'Sem dia anterior disponível para comparação';
 }
 diaEstoqueSel.addEventListener('change', renderEstoque);
 const textFilterEstoque = document.getElementById('f-text-estoque');
@@ -1821,11 +1843,20 @@ function renderDesconto(){
     </tr>`;
   }).join('') || `<tr><td colspan="8"><div class="emptystate">Nenhum resultado encontrado.</div></td></tr>`;
 
-  const emPromoCount = rows.filter(r=>r.desconto_pct>0).length;
+  const emPromo = rows.filter(r=>r.desconto_pct>0);
+  const emPromoCount = emPromo.length;
+  const descontoMedio = emPromoCount>0 ? emPromo.reduce((s,r)=>s+r.desconto_pct,0)/emPromoCount : 0;
+  const precosValidos = rows.filter(r=>r.preco_com_desconto!=null);
+  const precoMedio = precosValidos.length>0 ? precosValidos.reduce((s,r)=>s+r.preco_com_desconto,0)/precosValidos.length : 0;
   document.getElementById('desconto-kpirow').innerHTML = `
     <div class="kpi"><p class="label">Produtos</p><p class="value">${fmtInt.format(rows.length)}</p><span class="delta flat">no dia selecionado</span></div>
     <div class="kpi"><p class="label">Em promoção</p><p class="value">${fmtInt.format(emPromoCount)}</p><span class="delta flat">${rows.length>0 ? fmtPctPlain(emPromoCount/rows.length*100) : '0,0%'} do total</span></div>
+    <div class="kpi"><p class="label">Desconto médio</p><p class="value">${fmtPctPlain(descontoMedio)}</p><span class="delta flat">entre os em promoção</span></div>
+    <div class="kpi"><p class="label">Preço médio com desconto</p><p class="value">${fmtBRL.format(precoMedio)}</p><span class="delta flat">todos os produtos</span></div>
   `;
+  document.getElementById('desconto-compare-hint').textContent = prevDiaDesc
+    ? `Comparando com ${prevDiaDesc.split('-').reverse().join('/')} (dia anterior disponível)`
+    : 'Sem dia anterior disponível para comparação';
 }
 diaDescontoSel.addEventListener('change', renderDesconto);
 const textFilterDesconto = document.getElementById('f-text-desconto');
@@ -1903,10 +1934,13 @@ function renderCrossSell(){
     <td class="num">${fmtInt.format(r.amostras)}</td>
   </tr>`).join('') || `<tr><td colspan="3"><div class="emptystate">Nenhum resultado encontrado.</div></td></tr>`;
 
+  const totalAmostras = sortedRepurchase.reduce((s,r)=>s+r.amostras,0);
+  const tempoMedioGeral = totalAmostras>0 ? sortedRepurchase.reduce((s,r)=>s+r.media_dias*r.amostras,0)/totalAmostras : 0;
   document.getElementById('cross-kpirow').innerHTML = `
     <div class="kpi"><p class="label">Pares mesmo pedido</p><p class="value">${fmtInt.format(sortedSame.length)}</p><span class="delta flat">com o filtro atual</span></div>
     <div class="kpi"><p class="label">Pares futuros</p><p class="value">${fmtInt.format(sortedFuture.length)}</p><span class="delta flat">com o filtro atual</span></div>
     <div class="kpi"><p class="label">Produtos com recompra</p><p class="value">${fmtInt.format(sortedRepurchase.length)}</p><span class="delta flat">com o filtro atual</span></div>
+    <div class="kpi"><p class="label">Tempo médio até recompra</p><p class="value">${tempoMedioGeral.toFixed(0)} dias</p><span class="delta flat">média ponderada pelas amostras</span></div>
   `;
 }
 periodoCrossSel.addEventListener('change', renderCrossSell);
@@ -1989,11 +2023,14 @@ function renderAviseMe(){
 
   const atendidos = rows.filter(r=>r.atendido).length;
   const reabastecidos = rows.filter(r=>r.reabastecido).length;
+  const produtosUnicos = new Set(rows.map(r=>r.sku||r.referencia)).size;
   document.getElementById('avise-me-kpirow').innerHTML = `
     <div class="kpi"><p class="label">Registros</p><p class="value">${fmtInt.format(rows.length)}</p><span class="delta flat">com o filtro atual</span></div>
+    <div class="kpi"><p class="label">Produtos únicos</p><p class="value">${fmtInt.format(produtosUnicos)}</p><span class="delta flat">SKUs distintos</span></div>
     <div class="kpi"><p class="label">Reabastecidos</p><p class="value">${fmtInt.format(reabastecidos)}</p><span class="delta flat">${rows.length>0 ? fmtPctPlain(reabastecidos/rows.length*100) : '0,0%'} do total</span></div>
     <div class="kpi"><p class="label">Atendidos</p><p class="value">${fmtInt.format(atendidos)}</p><span class="delta flat">${rows.length>0 ? fmtPctPlain(atendidos/rows.length*100) : '0,0%'} do total</span></div>
   `;
+  if(start && end) document.getElementById('am-compare-hint').textContent = comparePeriodText(start, end);
 
   const rankMap = {};
   for(const r of rows){
