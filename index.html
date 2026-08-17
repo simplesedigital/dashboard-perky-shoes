@@ -630,7 +630,7 @@ tbody tr:last-child td{border-bottom:none;}
       </div>
       <div class="field">
         <label for="f-moq-compras">Pedido mínimo
-          <span class="infotip" tabindex="0" role="img" aria-label="Em pares por produto. Quantidade mínima que o fornecedor aceita no pedido, somando todos os tamanhos.">i<span class="tooltip-box">Em pares por produto. Quantidade mínima que o fornecedor aceita no pedido, somando todos os tamanhos.</span></span>
+          <span class="infotip" tabindex="0" role="img" aria-label="Quantidade mínima por produto que o fornecedor aceita no pedido, somando todas as variações (tamanhos, cores etc).">i<span class="tooltip-box">Quantidade mínima por produto que o fornecedor aceita no pedido, somando todas as variações (tamanhos, cores etc).</span></span>
         </label>
         <input type="number" id="f-moq-compras" min="0" value="10">
       </div>
@@ -2340,7 +2340,7 @@ function renderCompras(){
   const coberturaMedia = coberturas.length>0 ? coberturas.reduce((s,v)=>s+v,0)/coberturas.length : null;
   document.getElementById('compras-kpirow').innerHTML = `
     <div class="kpi"><p class="label">Produtos com necessidade</p><p class="value">${fmtInt.format(produtosComNecessidade)}</p><span class="delta flat">de ${fmtInt.format(produtosTotal)} produtos no filtro atual</span></div>
-    <div class="kpi"><p class="label">Total de pares a comprar</p><p class="value">${fmtInt.format(totalPares)}</p><span class="delta flat">somando todos os SKUs</span></div>
+    <div class="kpi"><p class="label">Total de unidades a comprar</p><p class="value">${fmtInt.format(totalPares)}</p><span class="delta flat">somando todos os SKUs</span></div>
     <div class="kpi"><p class="label">SKUs com necessidade</p><p class="value">${fmtInt.format(skusComNecessidade.length)}</p><span class="delta flat">de ${fmtInt.format(linhas.length)} SKUs no filtro atual</span></div>
     <div class="kpi"><p class="label">Cobertura média atual</p><p class="value">${coberturaMedia===null ? '—' : Math.round(coberturaMedia)+' dias'}</p><span class="delta flat">estoque ÷ venda média diária</span></div>
   `;
