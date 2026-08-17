@@ -635,10 +635,15 @@ tbody tr:last-child td{border-bottom:none;}
         <input type="number" id="f-moq-compras" min="0" value="10">
       </div>
       <div class="field">
+        <label for="f-janela-compras">Janela de vendas (dias)
+          <span class="infotip" tabindex="0" role="img" aria-label="Período de histórico de vendas usado para calcular a taxa diária média de cada SKU.">i<span class="tooltip-box">Período de histórico de vendas usado para calcular a taxa diária média de cada SKU.</span></span>
+        </label>
+        <input type="number" id="f-janela-compras" min="1" value="90">
+      </div>
+      <div class="field">
         <label for="f-text-compras">Buscar produto</label>
         <input type="text" id="f-text-compras" placeholder="ex: sandália">
       </div>
-      <span class="hint">Janela de vendas: últimos 90 dias</span>
     </div>
   </div>
   <div class="kpirow" id="compras-kpirow"></div>
@@ -2216,19 +2221,16 @@ attachSort('table-presale', renderReposicoes);
 
 /* ---------------- COMPRAS (calculadora de necessidade de compra) ---------------- */
 
-const COMPRAS_JANELA_DIAS = 90;
-
 const textFilterCompras = document.getElementById('f-text-compras');
 const leadTimeComprasInput = document.getElementById('f-leadtime-compras');
 const coberturaComprasInput = document.getElementById('f-cobertura-compras');
 const moqComprasInput = document.getElementById('f-moq-compras');
+const janelaComprasInput = document.getElementById('f-janela-compras');
 
-/* Parte cara e independente dos filtros (estoque/vendas/reposicao por SKU): calculada uma vez e cacheada. */
+/* Parte cara e independente dos filtros (estoque/reposicao por SKU): calculada uma vez e cacheada.
+   Vendas ficam de fora daqui porque a janela de dias e ajustavel pelo usuario. */
 function computeComprasBase(){
   const latestStockDate = stockDates[0];
-  const today = todayISO();
-  const janelaStart = addDays(today, -COMPRAS_JANELA_DIAS);
-
   const skuInfo = stockRows.filter(r=>
     r.data===latestStockDate && r.ativo==='True' &&
     /^\d+$/.test(r.tamanho) && +r.tamanho>=33 && +r.tamanho<=44
@@ -2237,49 +2239,51 @@ function computeComprasBase(){
   const reposPorSku = {};
   (DATA.reposicoes||[]).forEach(r=>{ reposPorSku[r.sku] = (reposPorSku[r.sku]||0) + r.quantidade; });
 
-  function vendas90(sku){
-    const days = salesBySku[sku];
-    if(!days) return 0;
-    let qty = 0;
-    for(const day in days){
-      if(day < janelaStart || day > today) continue;
-      qty += skuSalesForDay(sku, day, 'all').qty;
-    }
-    return qty;
-  }
-
   const porProduto = {};
   skuInfo.forEach(r=>{
     if(!porProduto[r.referencia]) porProduto[r.referencia] = { referencia: r.referencia, nome: r.nome_produto, skus: [] };
     porProduto[r.referencia].skus.push({
-      sku: r.sku, tamanho: r.tamanho, estoque: r.estoque,
-      reposicao: reposPorSku[r.sku]||0, vendas90: vendas90(r.sku),
+      sku: r.sku, tamanho: r.tamanho, estoque: r.estoque, reposicao: reposPorSku[r.sku]||0,
     });
   });
 
   return Object.values(porProduto);
 }
 
-/* Necessidade e quebra por tamanho: recalculada a cada render com os filtros atuais (leve, so aritmetica). */
-function computeComprasNecessidade(produtosBase, leadTime, cobertura, moq){
+function vendasNoPeriodo(sku, janelaDias){
+  const days = salesBySku[sku];
+  if(!days) return 0;
+  const today = todayISO();
+  const janelaStart = addDays(today, -janelaDias);
+  let qty = 0;
+  for(const day in days){
+    if(day < janelaStart || day > today) continue;
+    qty += skuSalesForDay(sku, day, 'all').qty;
+  }
+  return qty;
+}
+
+/* Vendas, necessidade e quebra por tamanho: recalculadas a cada render com os filtros atuais. */
+function computeComprasNecessidade(produtosBase, leadTime, cobertura, moq, janelaDias){
   const linhas = [];
   produtosBase.forEach(p=>{
-    const estoqueTotal = p.skus.reduce((s,v)=>s+v.estoque,0);
-    const reposicaoTotal = p.skus.reduce((s,v)=>s+v.reposicao,0);
-    const vendasTotal = p.skus.reduce((s,v)=>s+v.vendas90,0);
-    const taxaDiaria = vendasTotal / COMPRAS_JANELA_DIAS;
+    const skus = p.skus.map(v=>({...v, vendas: vendasNoPeriodo(v.sku, janelaDias)}));
+    const estoqueTotal = skus.reduce((s,v)=>s+v.estoque,0);
+    const reposicaoTotal = skus.reduce((s,v)=>s+v.reposicao,0);
+    const vendasTotal = skus.reduce((s,v)=>s+v.vendas,0);
+    const taxaDiaria = vendasTotal / janelaDias;
     const demandaProjetada = taxaDiaria * (leadTime + cobertura);
     const necessidadeBruta = Math.max(0, demandaProjetada - estoqueTotal - reposicaoTotal);
     const necessidade = necessidadeBruta>0 ? Math.max(Math.ceil(necessidadeBruta), moq) : 0;
 
-    const comVenda = p.skus.filter(v=>v.vendas90>0);
-    const base = comVenda.length>0 ? comVenda : p.skus;
-    const totalRef = base.reduce((s,v)=>s+(v.vendas90||1),0);
+    const comVenda = skus.filter(v=>v.vendas>0);
+    const base = comVenda.length>0 ? comVenda : skus;
+    const totalRef = base.reduce((s,v)=>s+(v.vendas||1),0);
     const comprarPorSku = {};
     if(necessidade>0){
       let alocado = 0;
       const raw = base.map(v=>{
-        const pct = (v.vendas90||1)/totalRef;
+        const pct = (v.vendas||1)/totalRef;
         const exata = necessidade*pct;
         const piso = Math.floor(exata);
         alocado += piso;
@@ -2291,11 +2295,11 @@ function computeComprasNecessidade(produtosBase, leadTime, cobertura, moq){
       raw.forEach(v=>{ comprarPorSku[v.sku] = v.piso; });
     }
 
-    p.skus.forEach(v=>{
+    skus.forEach(v=>{
       linhas.push({
         referencia: p.referencia, nome: p.nome, sku: v.sku, tamanho: v.tamanho,
-        estoque: v.estoque, vendas90: v.vendas90, reposicao: v.reposicao,
-        comprar: comprarPorSku[v.sku] || 0,
+        estoque: v.estoque, vendas: v.vendas, reposicao: v.reposicao,
+        comprar: comprarPorSku[v.sku] || 0, taxaDiariaProduto: taxaDiaria, estoqueProdutoTotal: estoqueTotal,
       });
     });
   });
@@ -2306,7 +2310,7 @@ const COMPRAS_COLUMNS = [
   {key:'nome', label:'Produto/Referência', type:'text', cellClass:'', format:r=>productCell(r.nome, r.referencia), sortValue:r=>r.nome},
   {key:'sku', label:'Tamanho/SKU', type:'text', cellClass:'', format:r=>sizeCell(r.tamanho, r.sku), sortValue:r=>r.sku},
   {key:'estoque', label:'Estoque atual', type:'number', format:r=>fmtInt.format(r.estoque), sortValue:r=>r.estoque},
-  {key:'vendas90', label:'Vendas 90d', type:'number', format:r=>fmtInt.format(r.vendas90), sortValue:r=>r.vendas90},
+  {key:'vendas', label:'Vendas no período', type:'number', format:r=>fmtInt.format(r.vendas), sortValue:r=>r.vendas},
   {key:'reposicao', label:'Reposição em aberto', type:'number', format:r=>fmtInt.format(r.reposicao), sortValue:r=>r.reposicao},
   {key:'comprar', label:'Comprar', type:'number', format:r=> r.comprar>0 ? `<b>${fmtInt.format(r.comprar)}</b>` : '—', sortValue:r=>r.comprar},
 ];
@@ -2319,9 +2323,10 @@ function renderCompras(){
   const leadTime = Math.max(0, +leadTimeComprasInput.value || 0);
   const cobertura = Math.max(0, +coberturaComprasInput.value || 0);
   const moq = Math.max(0, +moqComprasInput.value || 0);
+  const janelaDias = Math.max(1, +janelaComprasInput.value || 1);
 
   const produtosBase = comprasBaseCache.filter(p=> matchNameOrCode(filterText, p.nome, p.referencia));
-  let linhas = computeComprasNecessidade(produtosBase, leadTime, cobertura, moq);
+  let linhas = computeComprasNecessidade(produtosBase, leadTime, cobertura, moq, janelaDias);
   if(!sortState['table-compras-sku']) linhas = linhas.sort((a,b)=> b.comprar - a.comprar || a.nome.localeCompare(b.nome) || (+a.tamanho - +b.tamanho));
   renderSortableTable('table-compras-sku', COMPRAS_COLUMNS, linhas, 'Nenhum SKU encontrado com o filtro atual.');
 
@@ -2329,12 +2334,9 @@ function renderCompras(){
   const totalPares = skusComNecessidade.reduce((s,r)=>s+r.comprar,0);
   const produtosComNecessidade = new Set(skusComNecessidade.map(r=>r.referencia)).size;
   const produtosTotal = new Set(linhas.map(r=>r.referencia)).size;
-  const coberturas = produtosBase.map(p=>{
-    const estoqueTotal = p.skus.reduce((s,v)=>s+v.estoque,0);
-    const vendasTotal = p.skus.reduce((s,v)=>s+v.vendas90,0);
-    const taxaDiaria = vendasTotal / COMPRAS_JANELA_DIAS;
-    return taxaDiaria>0 ? estoqueTotal/taxaDiaria : null;
-  }).filter(v=>v!==null);
+  const coberturaPorProduto = {};
+  linhas.forEach(r=>{ coberturaPorProduto[r.referencia] = r.taxaDiariaProduto>0 ? r.estoqueProdutoTotal/r.taxaDiariaProduto : null; });
+  const coberturas = Object.values(coberturaPorProduto).filter(v=>v!==null);
   const coberturaMedia = coberturas.length>0 ? coberturas.reduce((s,v)=>s+v,0)/coberturas.length : null;
   document.getElementById('compras-kpirow').innerHTML = `
     <div class="kpi"><p class="label">Produtos com necessidade</p><p class="value">${fmtInt.format(produtosComNecessidade)}</p><span class="delta flat">de ${fmtInt.format(produtosTotal)} produtos no filtro atual</span></div>
@@ -2347,6 +2349,7 @@ textFilterCompras.addEventListener('input', renderCompras);
 leadTimeComprasInput.addEventListener('input', renderCompras);
 coberturaComprasInput.addEventListener('input', renderCompras);
 moqComprasInput.addEventListener('input', renderCompras);
+janelaComprasInput.addEventListener('input', renderCompras);
 attachSort('table-compras-sku', renderCompras);
 
 /* ---------------- INIT ---------------- */
