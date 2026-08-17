@@ -332,6 +332,7 @@ tbody tr:last-child td{border-bottom:none;}
     <button class="tabbtn" id="tabbtn-crosssell" role="tab" aria-selected="false" onclick="switchTab('crosssell')">Venda Cruzada</button>
     <button class="tabbtn" id="tabbtn-avise-me" role="tab" aria-selected="false" onclick="switchTab('avise-me')">Demanda Reprimida</button>
     <button class="tabbtn" id="tabbtn-reposicoes" role="tab" aria-selected="false" onclick="switchTab('reposicoes')">Reposições</button>
+    <button class="tabbtn" id="tabbtn-compras" role="tab" aria-selected="false" onclick="switchTab('compras')">Compras</button>
   </div>
 
 <!-- ================= TAB 1: CURVA ABC ================= -->
@@ -609,6 +610,27 @@ tbody tr:last-child td{border-bottom:none;}
   <p class="footnote" style="margin-top:-6px;" id="presale-summary"></p>
   <div class="tablewrap maxh"><table id="table-presale"><thead></thead><tbody></tbody></table></div>
 </div>
+
+<!-- ================= TAB 7: COMPRAS ================= -->
+<div class="panel" id="panel-compras">
+  <div class="card">
+    <div class="filterbar">
+      <div class="field">
+        <label for="f-text-compras">Buscar produto</label>
+        <input type="text" id="f-text-compras" placeholder="ex: sandália">
+      </div>
+      <span class="hint">Lead time: 40 dias · Cobertura-alvo: 30 dias · Pedido mínimo: 10 pares/produto · Janela de vendas: últimos 90 dias</span>
+    </div>
+  </div>
+  <div class="kpirow" id="compras-kpirow"></div>
+  <div class="section-title">Necessidade por produto</div>
+  <p class="footnote" style="margin-top:-6px;">Considera apenas sandálias ativas. Necessidade = vendas projetadas para o período (lead time + cobertura) − estoque atual − reposição já em pedido, respeitando o pedido mínimo por produto.</p>
+  <div class="tablewrap maxh"><table id="table-compras-produto"><thead></thead><tbody></tbody></table></div>
+
+  <div class="section-title">Quebra por tamanho</div>
+  <p class="footnote" style="margin-top:-6px;">Quantidade de cada produto dividida pela curva de tamanhos vendida nos últimos 90 dias, pronta para enviar ao fornecedor.</p>
+  <div class="tablewrap maxh"><table id="table-compras-tamanho"><thead></thead><tbody></tbody></table></div>
+</div>
 </div>
 
 <script>
@@ -640,7 +662,7 @@ function switchTopTab(name){
 }
 
 function switchTab(name){
-  ['abc','estoque','desconto','crosssell','avise-me','reposicoes'].forEach(n=>{
+  ['abc','estoque','desconto','crosssell','avise-me','reposicoes','compras'].forEach(n=>{
     document.getElementById('panel-'+n).classList.toggle('active', n===name);
     document.getElementById('tabbtn-'+n).setAttribute('aria-selected', n===name);
   });
@@ -2177,6 +2199,129 @@ textFilterReposicoes.addEventListener('input', renderReposicoes);
 attachSort('table-reposicoes', renderReposicoes);
 attachSort('table-presale', renderReposicoes);
 
+/* ---------------- COMPRAS (calculadora de necessidade de compra) ---------------- */
+
+const COMPRAS_CATEGORIA_REGEX = /sand[aá]lia/i;
+const COMPRAS_LEAD_TIME = 40;
+const COMPRAS_COBERTURA_ALVO = 30;
+const COMPRAS_MOQ = 10;
+const COMPRAS_JANELA_DIAS = 90;
+
+const textFilterCompras = document.getElementById('f-text-compras');
+
+function computeComprasData(){
+  const latestStockDate = stockDates[0];
+  const today = todayISO();
+  const janelaStart = addDays(today, -COMPRAS_JANELA_DIAS);
+
+  const skuInfo = stockRows.filter(r=>
+    r.data===latestStockDate && r.ativo==='True' && COMPRAS_CATEGORIA_REGEX.test(r.nome_produto||'') &&
+    /^\d+$/.test(r.tamanho) && +r.tamanho>=33 && +r.tamanho<=44
+  );
+
+  const reposPorSku = {};
+  (DATA.reposicoes||[]).forEach(r=>{ reposPorSku[r.sku] = (reposPorSku[r.sku]||0) + r.quantidade; });
+
+  function vendas90(sku){
+    const days = salesBySku[sku];
+    if(!days) return 0;
+    let qty = 0;
+    for(const day in days){
+      if(day < janelaStart || day > today) continue;
+      qty += skuSalesForDay(sku, day, 'all').qty;
+    }
+    return qty;
+  }
+
+  const porProduto = {};
+  skuInfo.forEach(r=>{
+    if(!porProduto[r.referencia]) porProduto[r.referencia] = { referencia: r.referencia, nome: r.nome_produto, skus: [] };
+    porProduto[r.referencia].skus.push({
+      sku: r.sku, tamanho: r.tamanho, estoque: r.estoque,
+      reposicao: reposPorSku[r.sku]||0, vendas90: vendas90(r.sku),
+    });
+  });
+
+  return Object.values(porProduto).map(p=>{
+    const estoqueTotal = p.skus.reduce((s,v)=>s+v.estoque,0);
+    const reposicaoTotal = p.skus.reduce((s,v)=>s+v.reposicao,0);
+    const vendasTotal = p.skus.reduce((s,v)=>s+v.vendas90,0);
+    const taxaDiaria = vendasTotal / COMPRAS_JANELA_DIAS;
+    const demandaProjetada = taxaDiaria * (COMPRAS_LEAD_TIME + COMPRAS_COBERTURA_ALVO);
+    const necessidadeBruta = Math.max(0, demandaProjetada - estoqueTotal - reposicaoTotal);
+    const necessidade = necessidadeBruta>0 ? Math.max(Math.ceil(necessidadeBruta), COMPRAS_MOQ) : 0;
+    const coberturaAtualDias = taxaDiaria>0 ? estoqueTotal/taxaDiaria : null;
+
+    let tamanhoBreakdown = [];
+    if(necessidade>0){
+      const comVenda = p.skus.filter(v=>v.vendas90>0);
+      const base = comVenda.length>0 ? comVenda : p.skus;
+      const totalRef = base.reduce((s,v)=>s+(v.vendas90||1),0);
+      let alocado = 0;
+      const raw = base.map(v=>{
+        const pct = (v.vendas90||1)/totalRef;
+        const exata = necessidade*pct;
+        const piso = Math.floor(exata);
+        alocado += piso;
+        return {sku:v.sku, tamanho:v.tamanho, estoque:v.estoque, piso, resto: exata-piso};
+      });
+      let sobra = necessidade - alocado;
+      raw.sort((a,b)=> b.resto - a.resto);
+      for(let i=0;i<raw.length && sobra>0;i++){ raw[i].piso += 1; sobra--; }
+      tamanhoBreakdown = raw.map(v=>({sku:v.sku, tamanho:v.tamanho, estoque:v.estoque, comprar:v.piso}))
+        .filter(v=>v.comprar>0).sort((a,b)=> +a.tamanho - +b.tamanho);
+    }
+
+    return { referencia:p.referencia, nome:p.nome, estoqueTotal, reposicaoTotal, vendasTotal, taxaDiaria, necessidade, coberturaAtualDias, tamanhoBreakdown };
+  });
+}
+
+const COMPRAS_PRODUTO_COLUMNS = [
+  {key:'nome', label:'Produto/Referência', type:'text', cellClass:'', format:r=>productCell(r.nome, r.referencia), sortValue:r=>r.nome},
+  {key:'estoqueTotal', label:'Estoque atual', type:'number', format:r=>fmtInt.format(r.estoqueTotal), sortValue:r=>r.estoqueTotal},
+  {key:'vendasTotal', label:'Vendas 90d', type:'number', format:r=>fmtInt.format(r.vendasTotal), sortValue:r=>r.vendasTotal},
+  {key:'reposicaoTotal', label:'Reposição em aberto', type:'number', format:r=>fmtInt.format(r.reposicaoTotal), sortValue:r=>r.reposicaoTotal},
+  {key:'coberturaAtualDias', label:'Cobertura atual', type:'number', format:r=> r.coberturaAtualDias===null ? '—' : `${Math.round(r.coberturaAtualDias)} dias`, sortValue:r=> r.coberturaAtualDias===null ? -1 : r.coberturaAtualDias},
+  {key:'necessidade', label:'Necessidade de compra', type:'number', format:r=> r.necessidade>0 ? `<b>${fmtInt.format(r.necessidade)} pares</b>` : '—', sortValue:r=>r.necessidade},
+];
+
+const COMPRAS_TAMANHO_COLUMNS = [
+  {key:'nome', label:'Produto/Referência', type:'text', cellClass:'', format:r=>productCell(r.nome, r.referencia), sortValue:r=>r.nome},
+  {key:'sku', label:'Tamanho/SKU', type:'text', cellClass:'', format:r=>sizeCell(r.tamanho, r.sku), sortValue:r=>r.sku},
+  {key:'estoque', label:'Estoque atual', type:'number', format:r=>fmtInt.format(r.estoque), sortValue:r=>r.estoque},
+  {key:'comprar', label:'Comprar', type:'number', format:r=>`<b>${fmtInt.format(r.comprar)}</b>`, sortValue:r=>r.comprar},
+];
+
+let comprasProdutosCache = null;
+
+function renderCompras(){
+  if(!comprasProdutosCache) comprasProdutosCache = computeComprasData();
+  const filterText = (textFilterCompras.value||'').trim().toLowerCase();
+
+  let produtos = comprasProdutosCache.filter(p=> matchNameOrCode(filterText, p.nome, p.referencia));
+  if(!sortState['table-compras-produto']) produtos = produtos.slice().sort((a,b)=> b.necessidade - a.necessidade);
+  renderSortableTable('table-compras-produto', COMPRAS_PRODUTO_COLUMNS, produtos, 'Nenhuma sandália encontrada com o filtro atual.');
+
+  const comNecessidade = produtos.filter(p=>p.necessidade>0);
+  const totalPares = comNecessidade.reduce((s,p)=>s+p.necessidade,0);
+  const coberturas = produtos.filter(p=>p.coberturaAtualDias!==null).map(p=>p.coberturaAtualDias);
+  const coberturaMedia = coberturas.length>0 ? coberturas.reduce((s,v)=>s+v,0)/coberturas.length : null;
+  document.getElementById('compras-kpirow').innerHTML = `
+    <div class="kpi"><p class="label">Produtos com necessidade</p><p class="value">${fmtInt.format(comNecessidade.length)}</p><span class="delta flat">de ${fmtInt.format(produtos.length)} sandálias ativas</span></div>
+    <div class="kpi"><p class="label">Total de pares a comprar</p><p class="value">${fmtInt.format(totalPares)}</p><span class="delta flat">somando todos os produtos</span></div>
+    <div class="kpi"><p class="label">Produtos cobertos</p><p class="value">${fmtInt.format(produtos.length-comNecessidade.length)}</p><span class="delta flat">não precisam de compra agora</span></div>
+    <div class="kpi"><p class="label">Cobertura média atual</p><p class="value">${coberturaMedia===null ? '—' : Math.round(coberturaMedia)+' dias'}</p><span class="delta flat">estoque ÷ venda média diária</span></div>
+  `;
+
+  let breakdown = [];
+  produtos.forEach(p=>{ p.tamanhoBreakdown.forEach(b=> breakdown.push({...b, nome:p.nome, referencia:p.referencia})); });
+  if(!sortState['table-compras-tamanho']) breakdown = breakdown.sort((a,b)=> a.nome.localeCompare(b.nome) || (+a.tamanho - +b.tamanho));
+  renderSortableTable('table-compras-tamanho', COMPRAS_TAMANHO_COLUMNS, breakdown, 'Nenhuma necessidade de compra com o filtro atual.');
+}
+textFilterCompras.addEventListener('input', renderCompras);
+attachSort('table-compras-produto', renderCompras);
+attachSort('table-compras-tamanho', renderCompras);
+
 /* ---------------- INIT ---------------- */
 function safeRun(fn, label){
   try{ fn(); }
@@ -2189,6 +2334,7 @@ safeRun(renderDesconto, 'aba Descontos por dia');
 safeRun(renderCrossSell, 'aba Venda Cruzada');
 safeRun(renderAviseMe, 'aba Avise-me');
 safeRun(renderReposicoes, 'aba Reposições');
+safeRun(renderCompras, 'aba Compras');
 
 /* Tooltips (.infotip) usam position:fixed calculado via JS pra nao serem cortados
    por containers de tabela com overflow (ex: dentro de <thead> com scroll). */
