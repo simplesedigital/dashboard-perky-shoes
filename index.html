@@ -597,7 +597,7 @@ tbody tr:last-child td{border-bottom:none;}
   <p class="footnote" style="margin-top:-6px;">SKUs com pedido de reposição já feito ao fornecedor, ordenados pela data de entrega prevista. Dados vêm da planilha de calendário de reposições.</p>
   <div class="tablewrap maxh"><table id="table-reposicoes"><thead></thead><tbody></tbody></table></div>
 
-  <div class="section-title">Pré-venda ativa</div>
+  <div class="section-title">Vendas antecipadas</div>
   <p class="footnote" style="margin-top:-6px;" id="presale-summary"></p>
   <div class="tablewrap maxh"><table id="table-presale"><thead></thead><tbody></tbody></table></div>
 </div>
@@ -2113,7 +2113,7 @@ const PRESALE_COLUMNS = [
   {key:'nome', label:'Produto/Referência', type:'text', cellClass:'', format:r=>productCell(r.nome, r.referencia), sortValue:r=>r.nome},
   {key:'sku', label:'Tamanho/SKU', type:'text', cellClass:'', format:r=>sizeCell(tamanhoFromSku(r.sku), r.sku), sortValue:r=>r.sku},
   {key:'estoque_atual', label:'Estoque atual', type:'number', format:r=>fmtInt.format(r.estoque_atual), sortValue:r=>r.estoque_atual},
-  {key:'dias_add_frete', label:'Dias add. no frete', type:'number', format:r=>`${r.dias_add_frete} dias`, sortValue:r=>r.dias_add_frete},
+  {key:'dias_add_frete', label:'Prazo extra de entrega', type:'number', format:r=>`${r.dias_add_frete} dias`, sortValue:r=>r.dias_add_frete},
   {key:'data_chegada', label:'Data de chegada', type:'text', format:r=>r.data_chegada.split('-').reverse().join('/'), sortValue:r=>r.data_chegada},
   {key:'status', label:'Status', type:'text', cellClass:'center', format:r=>{
       const s = reposicaoStatus(r._diasAte);
