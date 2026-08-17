@@ -600,6 +600,7 @@ tbody tr:last-child td{border-bottom:none;}
         <label for="f-text-reposicoes">Buscar produto</label>
         <input type="text" id="f-text-reposicoes" placeholder="ex: alpargata">
       </div>
+      <span class="hint" id="reposicoes-compare-hint"></span>
     </div>
   </div>
   <div class="kpirow" id="reposicoes-kpirow"></div>
@@ -644,6 +645,7 @@ tbody tr:last-child td{border-bottom:none;}
         <label for="f-text-compras">Buscar produto</label>
         <input type="text" id="f-text-compras" placeholder="ex: sandália">
       </div>
+      <span class="hint" id="compras-compare-hint"></span>
     </div>
   </div>
   <div class="kpirow" id="compras-kpirow"></div>
@@ -2182,6 +2184,8 @@ function renderReposicoes(){
   const estoqueVal = estoqueReposicoesSel.value;
   const filterText = (textFilterReposicoes.value||'').trim().toLowerCase();
   const today = todayISO();
+  document.getElementById('reposicoes-compare-hint').textContent =
+    `Baseado em: snapshot de estoque de ${stockDates[0].split('-').reverse().join('/')}`;
 
   let rows = reposicoesData.map(r=>({...r, _diasAte: dayDiff(today, r.data_prevista)}));
   if(statusVal!=='all') rows = rows.filter(r=> reposicaoStatus(r._diasAte).key===statusVal);
@@ -2340,6 +2344,7 @@ function renderCompras(){
   const cobertura = Math.max(0, +coberturaComprasInput.value || 0);
   const moq = Math.max(0, +moqComprasInput.value || 0);
   const janelaDias = Math.max(1, +janelaComprasInput.value || 1);
+  document.getElementById('compras-compare-hint').textContent = `Baseado em: últimos ${janelaDias} dias`;
 
   const produtosBase = comprasBaseCache.filter(p=> matchNameOrCode(filterText, p.nome, p.referencia));
   let linhas = computeComprasNecessidade(produtosBase, leadTime, cobertura, moq, janelaDias);
