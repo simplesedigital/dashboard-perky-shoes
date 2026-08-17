@@ -648,7 +648,7 @@ tbody tr:last-child td{border-bottom:none;}
   </div>
   <div class="kpirow" id="compras-kpirow"></div>
   <div class="section-title">Necessidade de compra por SKU</div>
-  <p class="footnote" style="margin-top:-6px;">Considera apenas produtos ativos, filtrados pela busca acima. Necessidade = vendas projetadas para o período (lead time + cobertura) − estoque atual − reposição já em pedido, distribuída pela curva de tamanhos e respeitando o pedido mínimo por produto.</p>
+  <p class="footnote" style="margin-top:-6px;">Considera apenas produtos ativos, filtrados pela busca acima. A demanda usada no cálculo soma vendas realizadas + avisos de demanda reprimida ainda não atendidos no período (venda perdida por ruptura de estoque). Necessidade = demanda projetada para o período (lead time + cobertura) − estoque atual − reposição já em pedido, distribuída pela curva de tamanhos e respeitando o pedido mínimo por produto.</p>
   <div class="tablewrap maxh"><table id="table-compras-sku"><thead></thead><tbody></tbody></table></div>
 </div>
 </div>
@@ -2263,27 +2263,40 @@ function vendasNoPeriodo(sku, janelaDias){
   return qty;
 }
 
+/* Avisos de "demanda reprimida" ainda nao atendidos dentro da janela: sinal de venda perdida
+   por ruptura de estoque, que nao aparece nas vendas realizadas. Avisos ja atendidos sao
+   ignorados porque a compra que os atendeu ja esta contada em vendasNoPeriodo. */
+function demandaReprimidaNoPeriodo(sku, janelaDias){
+  const today = todayISO();
+  const janelaStart = addDays(today, -janelaDias);
+  return aviseMeData.filter(r=> r.sku===sku && !r.atendido && r.data>=janelaStart && r.data<=today).length;
+}
+
 /* Vendas, necessidade e quebra por tamanho: recalculadas a cada render com os filtros atuais. */
 function computeComprasNecessidade(produtosBase, leadTime, cobertura, moq, janelaDias){
   const linhas = [];
   produtosBase.forEach(p=>{
-    const skus = p.skus.map(v=>({...v, vendas: vendasNoPeriodo(v.sku, janelaDias)}));
+    const skus = p.skus.map(v=>{
+      const vendas = vendasNoPeriodo(v.sku, janelaDias);
+      const demandaReprimida = demandaReprimidaNoPeriodo(v.sku, janelaDias);
+      return {...v, vendas, demandaReprimida, vendasAjustadas: vendas + demandaReprimida};
+    });
     const estoqueTotal = skus.reduce((s,v)=>s+v.estoque,0);
     const reposicaoTotal = skus.reduce((s,v)=>s+v.reposicao,0);
-    const vendasTotal = skus.reduce((s,v)=>s+v.vendas,0);
+    const vendasTotal = skus.reduce((s,v)=>s+v.vendasAjustadas,0);
     const taxaDiaria = vendasTotal / janelaDias;
     const demandaProjetada = taxaDiaria * (leadTime + cobertura);
     const necessidadeBruta = Math.max(0, demandaProjetada - estoqueTotal - reposicaoTotal);
     const necessidade = necessidadeBruta>0 ? Math.max(Math.ceil(necessidadeBruta), moq) : 0;
 
-    const comVenda = skus.filter(v=>v.vendas>0);
+    const comVenda = skus.filter(v=>v.vendasAjustadas>0);
     const base = comVenda.length>0 ? comVenda : skus;
-    const totalRef = base.reduce((s,v)=>s+(v.vendas||1),0);
+    const totalRef = base.reduce((s,v)=>s+(v.vendasAjustadas||1),0);
     const comprarPorSku = {};
     if(necessidade>0){
       let alocado = 0;
       const raw = base.map(v=>{
-        const pct = (v.vendas||1)/totalRef;
+        const pct = (v.vendasAjustadas||1)/totalRef;
         const exata = necessidade*pct;
         const piso = Math.floor(exata);
         alocado += piso;
@@ -2298,7 +2311,7 @@ function computeComprasNecessidade(produtosBase, leadTime, cobertura, moq, janel
     skus.forEach(v=>{
       linhas.push({
         referencia: p.referencia, nome: p.nome, sku: v.sku, tamanho: v.tamanho,
-        estoque: v.estoque, vendas: v.vendas, reposicao: v.reposicao,
+        estoque: v.estoque, vendas: v.vendas, demandaReprimida: v.demandaReprimida, reposicao: v.reposicao,
         comprar: comprarPorSku[v.sku] || 0, taxaDiariaProduto: taxaDiaria, estoqueProdutoTotal: estoqueTotal,
       });
     });
@@ -2311,6 +2324,7 @@ const COMPRAS_COLUMNS = [
   {key:'sku', label:'Tamanho/SKU', type:'text', cellClass:'', format:r=>sizeCell(r.tamanho, r.sku), sortValue:r=>r.sku},
   {key:'estoque', label:'Estoque atual', type:'number', format:r=>fmtInt.format(r.estoque), sortValue:r=>r.estoque},
   {key:'vendas', label:'Vendas no período', type:'number', format:r=>fmtInt.format(r.vendas), sortValue:r=>r.vendas},
+  {key:'demandaReprimida', label:'Demanda reprimida', type:'number', format:r=>fmtInt.format(r.demandaReprimida), sortValue:r=>r.demandaReprimida},
   {key:'reposicao', label:'Reposição em aberto', type:'number', format:r=>fmtInt.format(r.reposicao), sortValue:r=>r.reposicao},
   {key:'comprar', label:'Comprar', type:'number', format:r=> r.comprar>0 ? `<b>${fmtInt.format(r.comprar)}</b>` : '—', sortValue:r=>r.comprar},
 ];
