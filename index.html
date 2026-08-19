@@ -2606,7 +2606,7 @@ function renderDepositoMapaVisual(){
       const arr = (lados[key]||[]).sort((a,b)=>a.posicao-b.posicao);
       if(!arr.length) return '';
       return `<div class="wh-lado"><span class="wh-lado-label">${label}</span>${arr.map(e=>`
-        <span class="wh-estante" tabindex="0" style="background:${CATEGORIA_COR[e.categoria]||CATEGORIA_COR.vazia}">${e.corredor}${e.posicao}
+        <span class="wh-estante" tabindex="0" style="background:${CATEGORIA_COR[e.categoria]||CATEGORIA_COR.vazia}">${e.estante}
           <span class="wh-tip">${e.estante} — ${CATEGORIA_LABEL_MAPA[e.categoria]||e.categoria}</span>
         </span>`).join('')}</div>`;
     };
