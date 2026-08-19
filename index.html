@@ -2666,7 +2666,7 @@ function renderDeposito(){
   else if(ocupacaoGeral >= 80) ocupacaoNota = 'quase lotado';
   else ocupacaoNota = 'da capacidade dedicada';
   document.getElementById('deposito-kpirow').innerHTML = `
-    <div class="kpi"><p class="label">Estoque físico total</p><p class="value">${fmtInt.format(totalDemanda)}</p><span class="delta flat">caixas nas 33 estantes</span></div>
+    <div class="kpi"><p class="label">Estoque físico total</p><p class="value">${fmtInt.format(totalDemanda)}</p><span class="delta flat">caixas de calçado no depósito</span></div>
     <div class="kpi"><p class="label">Capacidade das estantes</p><p class="value">${fmtInt.format(totalCapacidade)}</p><span class="delta flat">caixas, na alocação atual</span></div>
     <div class="kpi"><p class="label">Ocupação</p><p class="value" style="${ocupacaoGeral>100?'color:var(--crit-ink);':''}">${fmtPctPlain(ocupacaoGeral)}</p><span class="delta ${ocupacaoGeral>=80?'down':'flat'}">${ocupacaoNota}</span></div>
     <div class="kpi"><p class="label">Sem espaço disponível</p><p class="value">${fmtInt.format(totalExcedente)}</p><span class="delta ${totalExcedente>0?'down':'flat'}">caixas precisam de estoque secundário</span></div>
