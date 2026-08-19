@@ -737,7 +737,7 @@ tbody tr:last-child td{border-bottom:none;}
     <div class="section-title">Capacidade por tipo de caixa</div>
     <div class="meters-grid" id="deposito-meters"></div>
 
-    <div class="section-title">Mapa do galpão</div>
+    <div class="section-title">Mapa de Depósito</div>
     <p class="footnote" style="margin-top:-6px;">Clique numa estante pra ver os andares dela; clique num andar pra ver os produtos guardados ali. 33 estantes dedicadas a calçado + 3 reservadas pra Feirinha/acessórios.</p>
     <div class="wh-legend" id="deposito-legend"></div>
     <div class="wh-drilldown">
@@ -754,6 +754,16 @@ tbody tr:last-child td{border-bottom:none;}
         <div class="tablewrap maxh"><table id="table-deposito-skus"><thead></thead><tbody></tbody></table></div>
       </div>
     </div>
+
+    <div class="section-title" style="margin-top:1.75rem;">Localizador por SKU</div>
+    <p class="footnote" style="margin-top:-6px;">Todos os SKUs com estoque físico e onde cada um está guardado.</p>
+    <div class="filterbar" style="margin-bottom:10px;">
+      <div class="field">
+        <label for="f-text-localizador">Buscar produto</label>
+        <input type="text" id="f-text-localizador" placeholder="ex: alpargata">
+      </div>
+    </div>
+    <div class="tablewrap maxh"><table id="table-deposito-localizador"><thead></thead><tbody></tbody></table></div>
 
     <div class="section-title">Top produtos por espaço ocupado</div>
     <p class="footnote" style="margin-top:-6px;">As 15 referências que mais ocupam espaço físico no galpão hoje.</p>
@@ -2714,6 +2724,43 @@ function renderDepositoSkus(){
   renderSortableTable('table-deposito-skus', DEPOSITO_SKU_COLUMNS, (andar ? andar.skus : []).slice().sort((a,b)=>a.tamanho.localeCompare(b.tamanho)), 'Nenhum produto nesse andar.');
 }
 
+let localizadorRowsCache = null;
+function buildLocalizadorRows(){
+  if(localizadorRowsCache) return localizadorRowsCache;
+  const categoriaPorEstante = {};
+  (depositoData.mapa_estantes||[]).forEach(e=>{ categoriaPorEstante[e.estante] = e.categoria; });
+  const rows = [];
+  Object.entries(depositoData.estante_andares||{}).forEach(([estante, andares])=>{
+    andares.forEach(a=>{
+      (a.skus||[]).forEach(s=>{
+        rows.push({...s, categoria: categoriaPorEstante[estante]||a.categoria, estante, andar: a.andar});
+      });
+    });
+  });
+  localizadorRowsCache = rows;
+  return rows;
+}
+
+const DEPOSITO_LOCALIZADOR_COLUMNS = [
+  {key:'nome', label:'Produto/Referência', type:'text', cellClass:'', format:r=>productCell(r.nome, r.referencia), sortValue:r=>r.nome},
+  {key:'tamanho', label:'Tamanho/SKU', type:'text', cellClass:'', format:r=>sizeCell(r.tamanho, r.sku), sortValue:r=>r.sku},
+  {key:'categoria', label:'Categoria', type:'text', cellClass:'', format:r=>categoriaBadge(r.categoria), sortValue:r=>r.categoria},
+  {key:'estante', label:'Estante', type:'text', cellClass:'', format:r=>r.estante, sortValue:r=>r.estante},
+  {key:'andar', label:'Andar', type:'text', cellClass:'', format:r=>r.andar, sortValue:r=>r.andar},
+  {key:'unidades', label:'Caixas', type:'number', format:r=>fmtInt.format(r.unidades), sortValue:r=>r.unidades},
+];
+
+const textFilterLocalizador = document.getElementById('f-text-localizador');
+function renderDepositoLocalizador(){
+  const filterText = (textFilterLocalizador.value||'').trim().toLowerCase();
+  let rows = buildLocalizadorRows();
+  if(filterText) rows = rows.filter(r=> matchNameOrCode(filterText, r.nome, r.referencia, r.sku));
+  if(!sortState['table-deposito-localizador']) rows = rows.slice().sort((a,b)=> a.nome.localeCompare(b.nome) || a.tamanho.localeCompare(b.tamanho));
+  renderSortableTable('table-deposito-localizador', DEPOSITO_LOCALIZADOR_COLUMNS, rows, 'Nenhum produto encontrado.');
+}
+textFilterLocalizador.addEventListener('input', renderDepositoLocalizador);
+attachSort('table-deposito-localizador', renderDepositoLocalizador);
+
 function renderDepositoRankingChart(){
   const top = (depositoData.ranking_espaco || []).slice(0, 15);
   const labels = top.map(r=> r.nome.length>28 ? r.nome.slice(0,28)+'…' : r.nome);
@@ -2752,6 +2799,7 @@ function renderDeposito(){
   const resumoRows = ['pequena','media','grande'].filter(c=>resumo[c]).map(c=>({categoria:c, ...resumo[c]}));
   renderDepositoMeters();
   renderDepositoMapaVisual();
+  renderDepositoLocalizador();
   renderDepositoRankingChart();
 
   const totalDemanda = resumoRows.reduce((s,r)=>s+r.demanda,0);
