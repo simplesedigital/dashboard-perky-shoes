@@ -1193,6 +1193,7 @@ function applyTheme(theme, rerender){
     requestAnimationFrame(()=>{
       safeRun(render, 'gráficos (troca de tema)');
       safeRun(renderPadroes, 'Padrões (troca de tema)');
+      safeRun(renderDepositoRankingChart, 'gráfico do Depósito (troca de tema)');
     });
   }
 }
