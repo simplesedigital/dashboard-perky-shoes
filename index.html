@@ -2570,15 +2570,16 @@ function renderDepositoMeters(){
   const cats = ['pequena','media','grande'].filter(c=>resumo[c]);
   document.getElementById('deposito-meters').innerHTML = cats.map(c=>{
     const r = resumo[c];
-    const pct = r.capacidade>0 ? Math.min(100, r.demanda/r.capacidade*100) : 0;
-    const cls = pct>=100 ? 'crit' : (pct>=80 ? 'warn' : '');
+    const pctReal = r.capacidade>0 ? r.demanda/r.capacidade*100 : 0;
+    const pctBarra = Math.min(100, pctReal);
+    const cls = pctReal>=100 ? 'crit' : (pctReal>=80 ? 'warn' : '');
     return `
       <div class="meter-card">
         <div class="meter-head">
           <span class="meter-title">${CATEGORIA_LABEL[c]} <span style="color:var(--text-muted); font-weight:400;">(${r.estantes_dedicadas} estantes)</span></span>
-          <span class="meter-pct">${fmtPctPlain(pct)}</span>
+          <span class="meter-pct" style="${pctReal>=100?'color:var(--crit-ink);':''}">${fmtPctPlain(pctReal)}</span>
         </div>
-        <div class="meter-track"><div class="meter-fill ${cls}" style="width:${pct}%"></div></div>
+        <div class="meter-track"><div class="meter-fill ${cls}" style="width:${pctBarra}%"></div></div>
         <div class="meter-foot">
           <span>${fmtInt.format(r.demanda)} de ${fmtInt.format(r.capacidade)} caixas</span>
           ${r.excedente>0 ? `<span class="excedente">+${fmtInt.format(r.excedente)} sem espaço</span>` : '<span>tudo cabe</span>'}
@@ -2659,11 +2660,15 @@ function renderDeposito(){
   const totalDemanda = resumoRows.reduce((s,r)=>s+r.demanda,0);
   const totalCapacidade = resumoRows.reduce((s,r)=>s+r.capacidade,0);
   const totalExcedente = resumoRows.reduce((s,r)=>s+r.excedente,0);
-  const ocupacaoGeral = totalCapacidade>0 ? Math.min(100, totalDemanda/totalCapacidade*100) : 0;
+  const ocupacaoGeral = totalCapacidade>0 ? totalDemanda/totalCapacidade*100 : 0;
+  let ocupacaoNota;
+  if(ocupacaoGeral > 100) ocupacaoNota = `estourando em ${fmtPctPlain(ocupacaoGeral-100)}`;
+  else if(ocupacaoGeral >= 80) ocupacaoNota = 'quase lotado';
+  else ocupacaoNota = 'da capacidade dedicada';
   document.getElementById('deposito-kpirow').innerHTML = `
     <div class="kpi"><p class="label">Estoque físico total</p><p class="value">${fmtInt.format(totalDemanda)}</p><span class="delta flat">caixas nas 33 estantes</span></div>
     <div class="kpi"><p class="label">Capacidade das estantes</p><p class="value">${fmtInt.format(totalCapacidade)}</p><span class="delta flat">caixas, na alocação atual</span></div>
-    <div class="kpi"><p class="label">Ocupação</p><p class="value">${fmtPctPlain(ocupacaoGeral)}</p><span class="delta ${ocupacaoGeral>=95?'down':'flat'}">${ocupacaoGeral>=95?'praticamente lotado':'da capacidade dedicada'}</span></div>
+    <div class="kpi"><p class="label">Ocupação</p><p class="value" style="${ocupacaoGeral>100?'color:var(--crit-ink);':''}">${fmtPctPlain(ocupacaoGeral)}</p><span class="delta ${ocupacaoGeral>=80?'down':'flat'}">${ocupacaoNota}</span></div>
     <div class="kpi"><p class="label">Sem espaço disponível</p><p class="value">${fmtInt.format(totalExcedente)}</p><span class="delta ${totalExcedente>0?'down':'flat'}">caixas precisam de estoque secundário</span></div>
   `;
 
