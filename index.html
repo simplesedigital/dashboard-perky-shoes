@@ -101,7 +101,7 @@ thead th.sortable:hover{color:var(--text-primary);}
 .wh-lados{display:flex; gap:10px;}
 .wh-lado{display:flex; flex-direction:column; gap:4px;}
 .wh-lado-label{font-size:9.5px; color:var(--text-muted); text-align:center; text-transform:uppercase; letter-spacing:.03em;}
-.wh-estante{width:34px; height:34px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:700; color:#fff; cursor:pointer; box-shadow:0 0 0 1px var(--border); position:relative; border:none; padding:0; font-family:var(--font-sans);}
+.wh-estante{width:52px; height:26px; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:700; color:#fff; cursor:pointer; box-shadow:0 0 0 1px var(--border); position:relative; border:none; padding:0; font-family:var(--font-sans);}
 .wh-estante.selected{box-shadow:0 0 0 2px var(--text-primary);}
 .wh-estante .wh-tip{display:none; position:fixed; width:180px; background:var(--surface-2); color:var(--text-primary); border:1px solid var(--border-strong); border-radius:8px; padding:8px 10px; font-size:11.5px; font-weight:400; line-height:1.4; box-shadow:0 4px 16px rgba(0,0,0,.25); z-index:9999; text-align:left;}
 .wh-estante:hover .wh-tip, .wh-estante:focus-visible .wh-tip{display:block;}
@@ -109,8 +109,9 @@ thead th.sortable:hover{color:var(--text-primary);}
 .wh-legend-item{display:flex; align-items:center; gap:6px;}
 .wh-legend-swatch{width:12px; height:12px; border-radius:4px; flex-shrink:0;}
 
-.wh-drilldown{display:grid; grid-template-columns:minmax(300px,1.3fr) 240px minmax(280px,1fr); gap:14px; align-items:start;}
-.wh-col{background:var(--surface-1); border-radius:12px; padding:14px; min-height:220px;}
+.wh-drilldown{display:grid; grid-template-columns:minmax(300px,1.3fr) 240px minmax(280px,1fr); gap:14px; align-items:stretch;}
+.wh-col{background:var(--surface-1); border-radius:12px; padding:14px; min-height:220px; display:flex; flex-direction:column;}
+.wh-col > *:last-child{flex:1;}
 .wh-col-title{font-size:12.5px; font-weight:600; color:var(--text-secondary); margin-bottom:10px;}
 .wh-estante-detail{display:flex; flex-direction:column; gap:6px;}
 .wh-andar-row{border-radius:8px; padding:8px 10px; cursor:pointer; border:1px solid var(--border-strong); background:var(--surface-2); transition:border-color .12s;}
@@ -750,7 +751,7 @@ tbody tr:last-child td{border-bottom:none;}
       </div>
       <div class="wh-col">
         <div class="wh-col-title" id="wh-andar-titulo">Selecione um andar</div>
-        <div class="tablewrap maxh" style="max-height:340px;"><table id="table-deposito-skus"><thead></thead><tbody></tbody></table></div>
+        <div class="tablewrap maxh"><table id="table-deposito-skus"><thead></thead><tbody></tbody></table></div>
       </div>
     </div>
 
