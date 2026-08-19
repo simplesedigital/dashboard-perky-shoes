@@ -2681,7 +2681,8 @@ function renderDepositoAndares(){
     container.innerHTML = '<div class="wh-empty-hint">Sem dados pra essa estante.</div>';
     return;
   }
-  container.innerHTML = `<div class="wh-estante-detail">${andares.map(a=>{
+  const andaresVisual = andares.slice().reverse(); // andar 1 embaixo, topo em cima - igual a prateleira de verdade
+  container.innerHTML = `<div class="wh-estante-detail">${andaresVisual.map(a=>{
     const pct = a.capacidade>0 ? Math.min(100, a.usado/a.capacidade*100) : 0;
     const sel = a.andar===depositoAndarAtual ? ' selected' : '';
     return `<div class="wh-andar-row${sel}" data-andar="${a.andar}">
