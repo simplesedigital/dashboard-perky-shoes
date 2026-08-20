@@ -110,17 +110,18 @@ thead th.sortable:hover{color:var(--text-primary);}
 .meter-foot{display:flex; justify-content:space-between; margin-top:7px; font-size:11.5px; color:var(--text-muted); font-variant-numeric:tabular-nums;}
 .meter-foot .excedente{color:var(--crit-ink); font-weight:600;}
 
-.saude-layout{display:grid; grid-template-columns:220px 1fr; gap:20px; align-items:start; margin-bottom:1.25rem;}
-.saude-donut-wrap{position:relative; width:100%; aspect-ratio:1;}
-.saude-legend{display:flex; flex-direction:column; gap:5px; font-size:12px; max-height:260px; overflow-y:auto;}
+.saude-layout{display:grid; grid-template-columns:minmax(260px,340px) 1fr; gap:24px; align-items:stretch; margin-bottom:1.25rem;}
+.saude-left{display:flex; gap:16px; align-items:flex-start; min-width:0;}
+.saude-donut-wrap{position:relative; width:140px; height:140px; flex-shrink:0;}
+.saude-legend{display:flex; flex-direction:column; gap:5px; font-size:12px; flex:1; min-width:0; max-height:320px; overflow-y:auto;}
 .saude-legend-item{display:flex; align-items:center; gap:6px; color:var(--text-secondary);}
 .saude-legend-swatch{width:9px; height:9px; border-radius:2px; flex-shrink:0;}
-.saude-legend-pct{margin-left:auto; font-variant-numeric:tabular-nums; color:var(--text-primary);}
-.saude-blocos{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:1.25rem;}
-.saude-bloco{flex-grow:1; flex-basis:150px; min-width:150px; border-radius:12px; padding:16px 18px; display:flex; flex-direction:column; justify-content:flex-end; gap:2px; min-height:100px;}
-.saude-bloco-pct{font-size:24px; font-weight:700; font-variant-numeric:tabular-nums;}
+.saude-legend-pct{margin-left:auto; font-variant-numeric:tabular-nums; color:var(--text-primary); flex-shrink:0;}
+.saude-blocos-col{display:flex; flex-direction:column; gap:10px;}
+.saude-bloco{flex-grow:1; flex-basis:60px; min-height:60px; border-radius:12px; padding:14px 18px; display:flex; flex-direction:column; justify-content:center; gap:2px;}
+.saude-bloco-pct{font-size:22px; font-weight:700; font-variant-numeric:tabular-nums;}
 .saude-bloco-label{font-size:12px;}
-@media (max-width:720px){ .saude-layout{grid-template-columns:1fr;} }
+@media (max-width:720px){ .saude-layout{grid-template-columns:1fr;} .saude-left{flex-direction:column; align-items:center; text-align:center;} }
 
 .warehouse-map{display:flex; gap:18px; align-items:stretch; overflow-x:auto; height:100%;}
 .wh-corredor{display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink:0;}
@@ -826,14 +827,14 @@ tbody tr:last-child td{border-bottom:none;}
         <input type="text" id="f-text-deposito" placeholder="ex: alpargata">
       </div>
     </div>
-    <p class="footnote" style="margin-top:-2px;">Os 15 produtos que mais ocupam espaço hoje, coloridos pela classificação de saúde do estoque.</p>
+    <p class="footnote" style="margin-top:-2px;">À esquerda, os 15 produtos que mais ocupam espaço hoje. À direita, quanto do depósito cada classificação ocupa no total — o bloco "Parado" sozinho já mostra o tamanho do problema.</p>
     <div class="saude-layout">
-      <div class="saude-donut-wrap"><canvas id="chart-deposito-top15" role="img" aria-label="Rosca com os 15 produtos que mais ocupam espaço no depósito, coloridos pela classificação de saúde do estoque"></canvas></div>
-      <div class="saude-legend" id="deposito-top15-legend"></div>
+      <div class="saude-left">
+        <div class="saude-donut-wrap"><canvas id="chart-deposito-top15" role="img" aria-label="Rosca com os 15 produtos que mais ocupam espaço no depósito, coloridos pela classificação de saúde do estoque"></canvas></div>
+        <div class="saude-legend" id="deposito-top15-legend"></div>
+      </div>
+      <div class="saude-blocos-col" id="deposito-blocos-classe"></div>
     </div>
-
-    <p class="footnote" style="margin-top:-2px;">Quanto do depósito está ocupado por cada classificação — o bloco "Parado" sozinho já mostra o tamanho do problema.</p>
-    <div class="saude-blocos" id="deposito-blocos-classe"></div>
 
     <div class="tablewrap maxh"><table id="table-deposito-ranking"><thead></thead><tbody></tbody></table></div>
   </div>
