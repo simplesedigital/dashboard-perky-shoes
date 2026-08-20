@@ -113,13 +113,14 @@ thead th.sortable:hover{color:var(--text-primary);}
 .meter-foot{display:flex; justify-content:space-between; margin-top:7px; font-size:11.5px; color:var(--text-muted); font-variant-numeric:tabular-nums;}
 .meter-foot .excedente{color:var(--crit-ink); font-weight:600;}
 
-.saude-layout{display:grid; grid-template-columns:1fr 300px; gap:24px; align-items:stretch; margin-bottom:1.25rem;}
-.saude-left{display:flex; gap:20px; align-items:flex-start; min-width:0;}
+.saude-layout{display:grid; grid-template-columns:420px 1fr 300px; gap:20px; align-items:stretch; margin-bottom:1.25rem;}
+.saude-left{display:flex; gap:16px; align-items:flex-start; min-width:0;}
 .saude-donut-wrap{position:relative; width:200px; height:200px; flex-shrink:0;}
 .saude-legend{display:flex; flex-direction:column; gap:5px; font-size:12px; flex:1; min-width:0;}
 .saude-legend-item{display:flex; align-items:center; gap:6px; color:var(--text-secondary);}
 .saude-legend-swatch{width:9px; height:9px; border-radius:2px; flex-shrink:0;}
-.saude-legend-pct{margin-left:auto; font-variant-numeric:tabular-nums; color:var(--text-primary); flex-shrink:0;}
+.saude-legend-pct{margin-left:auto; padding-left:8px; font-variant-numeric:tabular-nums; color:var(--text-primary); flex-shrink:0;}
+.saude-kpis{display:grid; grid-template-columns:repeat(2, minmax(140px,1fr)); gap:10px; align-content:center;}
 .saude-blocos-col{display:flex; flex-direction:column; gap:10px;}
 .saude-bloco{flex-grow:1; flex-basis:60px; min-height:60px; border-radius:12px; padding:14px 18px; display:flex; flex-direction:column; justify-content:center; gap:2px;}
 .saude-bloco-pct{font-size:22px; font-weight:700; font-variant-numeric:tabular-nums;}
@@ -837,6 +838,7 @@ tbody tr:last-child td{border-bottom:none;}
         <div class="saude-donut-wrap"><canvas id="chart-deposito-top15" role="img" aria-label="Rosca com os 15 produtos que mais ocupam espaço no depósito, coloridos pela classificação de saúde do estoque"></canvas></div>
         <div class="saude-legend" id="deposito-top15-legend"></div>
       </div>
+      <div class="saude-kpis" id="deposito-saude-kpis"></div>
       <div class="saude-blocos-col" id="deposito-blocos-classe"></div>
     </div>
 
@@ -2912,6 +2914,21 @@ function renderDepositoSaudeCharts(){
       <span class="saude-bloco-label">${CLASSE_SAUDE_LABEL[c]} · ${d.n} produto${d.n>1?'s':''}</span>
     </div>`;
   }).join('') : '<div class="saude-bloco" style="color:var(--text-muted);">Nenhum produto encontrado.</div>';
+
+  const kpisEl = document.getElementById('deposito-saude-kpis');
+  if(top15.length){
+    const somaTop15 = top15.reduce((s,r)=>s+r.pct_espaco,0);
+    let classePredominante = classes[0], maxPct = -1;
+    classes.forEach(c=>{ if(porClasse[c].pct>maxPct){ maxPct=porClasse[c].pct; classePredominante=c; } });
+    kpisEl.innerHTML = `
+      <div class="kpi"><p class="label">Referências analisadas</p><p class="value">${fmtInt.format(rows.length)}</p><span class="delta flat">no filtro atual</span></div>
+      <div class="kpi"><p class="label">Maior ocupante</p><p class="value">${fmtPctPlain(top15[0].pct_espaco)}</p><span class="delta flat">${top15[0].nome}</span></div>
+      <div class="kpi"><p class="label">Top 15 somam</p><p class="value">${fmtPctPlain(somaTop15)}</p><span class="delta flat">do depósito</span></div>
+      <div class="kpi"><p class="label">Classe predominante</p><p class="value">${CLASSE_SAUDE_LABEL[classePredominante]||'—'}</p><span class="delta flat">${fmtPctPlain(maxPct)} do depósito</span></div>
+    `;
+  } else {
+    kpisEl.innerHTML = '<div class="kpi"><p class="label">Referências analisadas</p><p class="value">0</p></div>';
+  }
 }
 
 const DEPOSITO_RANKING_COLUMNS = [
