@@ -387,6 +387,11 @@ tbody tr:last-child td{border-bottom:none;}
     <div class="chartwrap" id="chartwrap-hour" style="height:220px;"><canvas id="chart-hour" role="img" aria-label="Receita média por horário do dia"></canvas></div>
     <div class="tablewrap maxh"><table id="table-hour"><thead></thead><tbody></tbody></table></div>
 
+    <div class="section-title">Turno do dia</div>
+    <p class="footnote" style="margin-top:-6px;">Receita e pedidos médios por turno, considerando todos os dias do período. Manhã: 6h–11h59 · Tarde: 12h–17h59 · Noite: 18h–5h59 (inclui madrugada).</p>
+    <div class="chartwrap" id="chartwrap-turno" style="height:220px;"><canvas id="chart-turno" role="img" aria-label="Receita média por turno do dia"></canvas></div>
+    <div class="tablewrap"><table id="table-turno"><thead></thead><tbody></tbody></table></div>
+
     <div class="section-title">Dias da semana</div>
     <p class="footnote" style="margin-top:-6px;">Receita e pedidos são médias por ocorrência daquele dia da semana no período (ex: soma de todas as segundas ÷ número de segundas).</p>
     <div class="chartwrap" id="chartwrap-weekday" style="height:220px;"><canvas id="chart-weekday" role="img" aria-label="Receita média por dia da semana"></canvas></div>
@@ -1865,6 +1870,32 @@ function renderHour(orders, start, end){
   renderSortableTable('table-hour', PERIOD_COLUMNS('Horário'), rows);
 }
 
+const TURNOS = [
+  {name:'Manhã', test:h=>h>=6 && h<12},
+  {name:'Tarde', test:h=>h>=12 && h<18},
+  {name:'Noite', test:h=>h>=18 || h<6},
+];
+function renderTurno(orders, start, end){
+  const byTurno = TURNOS.map(()=>({revenue:0, count:0}));
+  for(const o of orders){
+    const hour = o[4];
+    if(hour===null || hour===undefined) continue;
+    const idx = TURNOS.findIndex(t=>t.test(hour));
+    if(idx<0) continue;
+    byTurno[idx].revenue += o[3];
+    byTurno[idx].count += 1;
+  }
+  const totalDays = dayDiff(start,end)+1;
+  const rows = TURNOS.map((t,i)=>{
+    const avgRevenue = byTurno[i].revenue/totalDays;
+    const avgOrders = byTurno[i].count/totalDays;
+    const ticket = byTurno[i].count>0 ? byTurno[i].revenue/byTurno[i].count : 0;
+    return {name: t.name, avgRevenue, avgOrders, ticket};
+  });
+  renderBarChart('chart-turno', rows.map(r=>r.name), rows.map(r=>r.avgRevenue), 'Receita média');
+  renderSortableTable('table-turno', PERIOD_COLUMNS('Turno'), rows);
+}
+
 const MONTH_NAMES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 function renderMonth(orders, start, end){
   const byMonth = Array.from({length:12}, ()=>({revenue:0, count:0}));
@@ -2006,6 +2037,7 @@ function renderPadroes(){
     renderWeekday(orders, start, end);
     renderMonthday(orders, start, end);
     renderHour(orders, start, end);
+    renderTurno(orders, start, end);
     renderMonth(orders, start, end);
     renderGeo(orders);
     renderTamanho(start, end, status);
@@ -2016,7 +2048,7 @@ function renderPadroes(){
 [fpStartInput, fpEndInput, fpStatusSelect].forEach(el=>el.addEventListener('change', renderPadroes));
 textFilterTamanho.addEventListener('input', ()=>renderTamanho(fpStartInput.value, fpEndInput.value, fpStatusSelect.value));
 categoriaTamanhoSel.addEventListener('change', ()=>renderTamanho(fpStartInput.value, fpEndInput.value, fpStatusSelect.value));
-['table-weekday','table-monthday','table-hour','table-month','table-state','table-city','table-tamanho'].forEach(id=>attachSort(id, renderPadroes));
+['table-weekday','table-monthday','table-hour','table-turno','table-month','table-state','table-city','table-tamanho'].forEach(id=>attachSort(id, renderPadroes));
 
 /* ---------------- TAB 2: ESTOQUE POR DIA ---------------- */
 
