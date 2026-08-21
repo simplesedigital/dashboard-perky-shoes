@@ -403,7 +403,7 @@ tbody tr:last-child td{border-bottom:none;}
     <div class="tablewrap maxh"><table id="table-monthday"><thead></thead><tbody></tbody></table></div>
 
     <div class="section-title">Meses do ano</div>
-    <p class="footnote" style="margin-top:-6px;">Mesma lógica de média, agrupando por mês (Jan a Dez) independente do ano.</p>
+    <p class="footnote" style="margin-top:-6px;">Receita e pedidos são médias por ocorrência daquele mês no período, independente do ano (ex: soma de todos os Junhos ÷ número de Junhos, mesmo que parciais).</p>
     <div class="chartwrap" id="chartwrap-month" style="height:220px;"><canvas id="chart-month" role="img" aria-label="Receita média por mês do ano"></canvas></div>
     <div class="tablewrap maxh"><table id="table-month"><thead></thead><tbody></tbody></table></div>
   </div>
@@ -1793,10 +1793,10 @@ function renderSortableTable(tableId, columns, rows, emptyMsg){
   }).join('') + '</tr>').join('');
 }
 
-const PERIOD_COLUMNS = (dimLabel) => [
+const PERIOD_COLUMNS = (dimLabel, receitaLabel='Receita média/dia', pedidosLabel='Pedidos médios/dia') => [
   {key:'name', label:dimLabel, type:'text', format:r=>r.name, sortValue:r=>r.name},
-  {key:'avgRevenue', label:'Receita média/dia', type:'number', format:r=>fmtBRL.format(r.avgRevenue), sortValue:r=>r.avgRevenue},
-  {key:'avgOrders', label:'Pedidos médios/dia', type:'number', format:r=>r.avgOrders.toFixed(1).replace('.',','), sortValue:r=>r.avgOrders},
+  {key:'avgRevenue', label:receitaLabel, type:'number', format:r=>fmtBRL.format(r.avgRevenue), sortValue:r=>r.avgRevenue},
+  {key:'avgOrders', label:pedidosLabel, type:'number', format:r=>r.avgOrders.toFixed(1).replace('.',','), sortValue:r=>r.avgOrders},
   {key:'ticket', label:'Ticket médio', type:'number', format:r=>fmtBRL.format(r.ticket), sortValue:r=>r.ticket},
 ];
 
@@ -1867,7 +1867,7 @@ function renderHour(orders, start, end){
     return {name: String(i).padStart(2,'0')+'h', avgRevenue, avgOrders, ticket};
   });
   renderBarChart('chart-hour', rows.map(r=>r.name), rows.map(r=>r.avgRevenue), 'Receita média');
-  renderSortableTable('table-hour', PERIOD_COLUMNS('Horário'), rows);
+  renderSortableTable('table-hour', PERIOD_COLUMNS('Horário', 'Receita média da hora', 'Pedidos médios na hora'), rows);
 }
 
 const TURNOS = [
@@ -1893,7 +1893,7 @@ function renderTurno(orders, start, end){
     return {name: t.name, avgRevenue, avgOrders, ticket};
   });
   renderBarChart('chart-turno', rows.map(r=>r.name), rows.map(r=>r.avgRevenue), 'Receita média');
-  renderSortableTable('table-turno', PERIOD_COLUMNS('Turno'), rows);
+  renderSortableTable('table-turno', PERIOD_COLUMNS('Turno', 'Receita média do turno', 'Pedidos médios no turno'), rows);
 }
 
 const MONTH_NAMES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -1904,24 +1904,31 @@ function renderMonth(orders, start, end){
     byMonth[month-1].revenue += o[3];
     byMonth[month-1].count += 1;
   }
-  const dateCountByMonth = Array(12).fill(0);
+  // conta quantas vezes cada mes-do-ano apareceu no periodo (por combinacao ano+mes distinta,
+  // nao por dia — um mes parcialmente coberto ainda conta como 1 ocorrencia daquele mes)
+  const occurrencesByMonth = Array(12).fill(0);
   let cursor = start;
+  let lastYearMonth = null;
   while(cursor <= end){
-    const month = parseInt(cursor.slice(5,7),10);
-    dateCountByMonth[month-1] += 1;
+    const yearMonth = cursor.slice(0,7);
+    if(yearMonth !== lastYearMonth){
+      const month = parseInt(cursor.slice(5,7),10);
+      occurrencesByMonth[month-1] += 1;
+      lastYearMonth = yearMonth;
+    }
     cursor = addDays(cursor,1);
   }
   const rows = [];
   for(let i=0;i<12;i++){
-    const dias = dateCountByMonth[i];
-    if(dias===0) continue;
-    const avgRevenue = byMonth[i].revenue/dias;
-    const avgOrders = byMonth[i].count/dias;
+    const ocorrencias = occurrencesByMonth[i];
+    if(ocorrencias===0) continue;
+    const avgRevenue = byMonth[i].revenue/ocorrencias;
+    const avgOrders = byMonth[i].count/ocorrencias;
     const ticket = byMonth[i].count>0 ? byMonth[i].revenue/byMonth[i].count : 0;
     rows.push({name:MONTH_NAMES[i], avgRevenue, avgOrders, ticket});
   }
   renderBarChart('chart-month', rows.map(r=>r.name), rows.map(r=>r.avgRevenue), 'Receita média');
-  renderSortableTable('table-month', PERIOD_COLUMNS('Mês'), rows);
+  renderSortableTable('table-month', PERIOD_COLUMNS('Mês', 'Receita média do mês', 'Pedidos médios no mês'), rows);
 }
 
 let topnCity = 20;
