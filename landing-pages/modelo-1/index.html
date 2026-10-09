@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buenos Aires Roteiro Completo | Uni Explorer – Saída 19/11/2026</title>
+<meta name="description" content="Viaje para Buenos Aires com a Uni Explorer: ônibus leito, hotel com café da manhã, City Tour, Delta do Tigre e guia brasileiro. Saída 19 de novembro de 2026. Apenas 40 vagas. A partir de R$ 1.980 à vista ou em até 12x.">
+<meta property="og:title" content="Buenos Aires Roteiro Completo – Uni Explorer">
+<meta property="og:description" content="Ônibus leito, hotel, City Tour, Delta do Tigre e guia brasileiro. Apenas 40 vagas – saída 19/11/2026.">
+<meta property="og:type" content="website">
+<!-- <meta property="og:image" content="URL_DA_IMAGEM_DE_COMPARTILHAMENTO.jpg"> -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  /* =========================================================
+     CONFIGURAÇÃO RÁPIDA – troque aqui as imagens da página
+     ========================================================= */
+  :root{
+    --img-hero:   url("COLOQUE_AQUI_FOTO_OBELISCO_OU_CAMINITO.jpg");
+    --img-tigre:  url("COLOQUE_AQUI_FOTO_DELTA_DO_TIGRE.jpg");
+    --img-city:   url("COLOQUE_AQUI_FOTO_CITY_TOUR.jpg");
+    --img-onibus: url("COLOQUE_AQUI_FOTO_ONIBUS_LEITO.jpg");
+
+    --azul: #0b2545;
+    --azul-2: #13315c;
+    --celeste: #74acdf;   /* azul da bandeira argentina */
+    --sol: #f6b40e;       /* sol de maio */
+    --sol-escuro: #d99a00;
+    --verde-wpp: #25d366;
+    --texto: #1d2433;
+    --texto-suave: #5b6476;
+    --fundo: #ffffff;
+    --fundo-2: #f4f7fb;
+    --borda: #e3e8f0;
+    --raio: 18px;
+    --sombra: 0 10px 30px rgba(11,37,69,.10);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--texto);background:var(--fundo);line-height:1.6;-webkit-font-smoothing:antialiased}
+  img{max-width:100%;display:block}
+  a{color:inherit}
+  .container{width:100%;max-width:1120px;margin:0 auto;padding:0 20px}
+  section{padding:80px 0}
+  h1,h2,h3{line-height:1.15}
+  h2{font-family:"Playfair Display",Georgia,serif;font-size:clamp(1.8rem,4vw,2.6rem);color:var(--azul);margin-bottom:14px}
+  .eyebrow{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--sol-escuro);margin-bottom:10px}
+  .lead{font-size:1.1rem;color:var(--texto-suave);max-width:680px}
+  .center{text-align:center}
+  .center .lead{margin:0 auto}
+
+  /* ---------- Botões ---------- */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font-weight:800;font-size:1.05rem;text-decoration:none;border:0;cursor:pointer;border-radius:999px;padding:18px 34px;transition:transform .15s ease,box-shadow .15s ease,background .15s ease;text-align:center}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-primary{background:var(--sol);color:var(--azul);box-shadow:0 10px 24px rgba(246,180,14,.45)}
+  .btn-primary:hover{background:#ffc531}
+  .btn-wpp{background:var(--verde-wpp);color:#fff;box-shadow:0 10px 24px rgba(37,211,102,.35)}
+  .btn-ghost{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.5)}
+  .btn svg{width:22px;height:22px;flex:none}
+  .pulse{animation:pulse 2.2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(246,180,14,.6)}70%{box-shadow:0 0 0 16px rgba(246,180,14,0)}100%{box-shadow:0 0 0 0 rgba(246,180,14,0)}}
+
+  /* ---------- Barra de urgência ---------- */
+  .topbar{background:var(--azul);color:#fff;font-size:.9rem;text-align:center;padding:10px 16px;position:sticky;top:0;z-index:50}
+  .topbar strong{color:var(--sol)}
+  .topbar .sep{opacity:.4;margin:0 10px}
+
+  /* ---------- Hero ---------- */
+  .hero{position:relative;color:#fff;padding:90px 0 110px;background:
+      linear-gradient(115deg,rgba(11,37,69,.94) 0%,rgba(11,37,69,.78) 45%,rgba(11,37,69,.35) 100%),
+      var(--img-hero) center/cover no-repeat,
+      linear-gradient(135deg,var(--azul) 0%,var(--azul-2) 55%,var(--celeste) 100%);}
+  .hero-grid{display:grid;grid-template-columns:1.25fr .9fr;gap:48px;align-items:center}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.04em;margin-bottom:36px;font-size:1.05rem}
+  .brand-mark{width:38px;height:38px;border-radius:50%;background:var(--sol);display:grid;place-items:center;color:var(--azul);font-weight:900}
+  .tag{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);padding:8px 14px;border-radius:999px;font-size:.88rem;font-weight:600;margin-bottom:22px;backdrop-filter:blur(4px)}
+  .tag .dot{width:8px;height:8px;border-radius:50%;background:#ff5a5a;box-shadow:0 0 0 4px rgba(255,90,90,.25)}
+  .hero h1{font-family:"Playfair Display",Georgia,serif;font-size:clamp(2.3rem,5.6vw,4rem);font-weight:800;margin-bottom:20px}
+  .hero h1 span{color:var(--sol)}
+  .hero p.sub{font-size:1.18rem;opacity:.92;max-width:560px;margin-bottom:30px}
+  .hero-bullets{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:10px 22px;margin-bottom:34px;max-width:560px}
+  .hero-bullets li{display:flex;gap:10px;align-items:flex-start;font-weight:500}
+  .hero-bullets li::before{content:"✓";flex:none;width:22px;height:22px;border-radius:50%;background:var(--sol);color:var(--azul);font-weight:900;font-size:.8rem;display:grid;place-items:center;margin-top:2px}
+  .hero-ctas{display:flex;flex-wrap:wrap;gap:14px}
+
+  /* Card de preço no hero */
+  .price-card{background:#fff;color:var(--texto);border-radius:24px;padding:32px;box-shadow:0 30px 60px rgba(0,0,0,.3);position:relative}
+  .price-card .ribbon{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#e63946;color:#fff;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:7px 16px;border-radius:999px;white-space:nowrap}
+  .price-card .date{display:flex;align-items:center;gap:14px;padding-bottom:18px;border-bottom:1px dashed var(--borda);margin-bottom:18px}
+  .cal{width:64px;flex:none;border-radius:12px;overflow:hidden;text-align:center;border:1px solid var(--borda)}
+  .cal b{display:block;background:var(--azul);color:#fff;font-size:.72rem;letter-spacing:.1em;padding:3px 0}
+  .cal span{display:block;font-size:1.7rem;font-weight:800;color:var(--azul);padding:2px 0 4px}
+  .date small{color:var(--texto-suave);display:block}
+  .date strong{font-size:1.05rem}
+  .from{color:var(--texto-suave);font-size:.95rem}
+  .price{font-size:3rem;font-weight:800;color:var(--azul);line-height:1;margin:4px 0}
+  .price sup{font-size:1.1rem;vertical-align:top;margin-right:4px;position:relative;top:10px}
+  .price-note{font-size:.95rem;color:var(--texto-suave);margin-bottom:20px}
+  .price-note b{color:var(--texto)}
+  .price-card .btn{width:100%}
+  .vagas{margin-top:20px}
+  .vagas-top{display:flex;justify-content:space-between;font-size:.85rem;font-weight:600;margin-bottom:6px}
+  .vagas-top em{font-style:normal;color:#e63946}
+  .bar{height:10px;background:var(--fundo-2);border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;width:72%;background:linear-gradient(90deg,var(--sol),#e63946);border-radius:99px}
+  .secure{display:flex;justify-content:center;gap:16px;margin-top:16px;font-size:.8rem;color:var(--texto-suave);flex-wrap:wrap}
+
+  /* ---------- Faixa de confiança ---------- */
+  .trust{background:var(--azul-2);color:#fff;padding:0}
+  .trust-grid{display:grid;grid-template-columns:repeat(4,1fr);text-align:center}
+  .trust-item{padding:30px 12px;border-right:1px solid rgba(255,255,255,.12)}
+  .trust-item:last-child{border-right:0}
+  .trust-item strong{display:block;font-size:2rem;font-weight:800;color:var(--sol);line-height:1.1}
+  .trust-item span{font-size:.92rem;opacity:.85}
+
+  /* ---------- Contagem regressiva ---------- */
+  .countdown{display:flex;gap:12px;justify-content:center;margin-top:26px;flex-wrap:wrap}
+  .countdown div{background:#fff;border:1px solid var(--borda);border-radius:14px;min-width:84px;padding:12px 10px;box-shadow:var(--sombra)}
+  .countdown b{display:block;font-size:2rem;color:var(--azul);line-height:1}
+  .countdown small{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--texto-suave)}
+
+  /* ---------- Incluso ---------- */
+  .bg-soft{background:var(--fundo-2)}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px}
+  .feature{background:#fff;border:1px solid var(--borda);border-radius:var(--raio);padding:28px;transition:transform .2s ease,box-shadow .2s ease}
+  .feature:hover{transform:translateY(-4px);box-shadow:var(--sombra)}
+  .feature .ico{width:54px;height:54px;border-radius:14px;background:rgba(116,172,223,.18);display:grid;place-items:center;font-size:1.6rem;margin-bottom:16px}
+  .feature h3{font-size:1.12rem;color:var(--azul);margin-bottom:6px}
+  .feature p{color:var(--texto-suave);font-size:.96rem}
+
+  /* ---------- Experiências (fotos) ---------- */
+  .exp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px}
+  .exp{position:relative;border-radius:var(--raio);overflow:hidden;min-height:360px;display:flex;align-items:flex-end;color:#fff;box-shadow:var(--sombra)}
+  .exp::before{content:"";position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .5s ease}
+  .exp:hover::before{transform:scale(1.06)}
+  .exp::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,37,69,0) 30%,rgba(11,37,69,.92) 100%)}
+  .exp-1::before{background-image:var(--img-city),linear-gradient(135deg,#13315c,#74acdf)}
+  .exp-2::before{background-image:var(--img-tigre),linear-gradient(135deg,#1b4332,#74acdf)}
+  .exp-3::before{background-image:var(--img-onibus),linear-gradient(135deg,#0b2545,#f6b40e)}
+  .exp-body{position:relative;z-index:1;padding:26px}
+  .exp-body h3{font-size:1.35rem;margin-bottom:6px}
+  .exp-body p{font-size:.95rem;opacity:.9}
+
+  /* ---------- Roteiro ---------- */
+  .timeline{position:relative;max-width:780px;margin:48px auto 0}
+  .timeline::before{content:"";position:absolute;left:27px;top:8px;bottom:8px;width:2px;background:linear-gradient(var(--celeste),var(--sol))}
+  .step{position:relative;display:flex;gap:24px;margin-bottom:28px}
+  .step-num{flex:none;width:56px;height:56px;border-radius:50%;background:var(--azul);color:#fff;display:grid;place-items:center;font-weight:800;z-index:1;border:4px solid var(--fundo-2);font-size:.85rem;text-align:center;line-height:1.05}
+  .step-card{background:#fff;border:1px solid var(--borda);border-radius:var(--raio);padding:22px 24px;flex:1}
+  .step-card h3{color:var(--azul);font-size:1.12rem;margin-bottom:6px}
+  .step-card p{color:var(--texto-suave);font-size:.97rem}
+
+  /* ---------- Hotéis ---------- */
+  .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:44px}
+  .plan{border:2px solid var(--borda);border-radius:24px;padding:34px;background:#fff;position:relative;display:flex;flex-direction:column}
+  .plan.destaque{border-color:var(--sol);box-shadow:0 20px 40px rgba(246,180,14,.18)}
+  .plan .badge{position:absolute;top:-13px;right:24px;background:var(--sol);color:var(--azul);font-size:.75rem;font-weight:800;padding:6px 14px;border-radius:999px;text-transform:uppercase;letter-spacing:.06em}
+  .plan h3{font-size:1.35rem;color:var(--azul);margin-bottom:4px}
+  .plan .desc{color:var(--texto-suave);margin-bottom:20px}
+  .plan ul{list-style:none;margin-bottom:26px;flex:1}
+  .plan li{padding:9px 0;border-bottom:1px solid var(--borda);display:flex;gap:10px}
+  .plan li::before{content:"✓";color:#2a9d8f;font-weight:900}
+  .plan .btn{width:100%}
+
+  /* ---------- Por que nós ---------- */
+  .why{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+  .why-list{list-style:none;margin-top:24px}
+  .why-list li{display:flex;gap:16px;margin-bottom:20px}
+  .why-list .n{flex:none;width:44px;height:44px;border-radius:12px;background:var(--azul);color:var(--sol);font-weight:800;display:grid;place-items:center}
+  .why-list h3{font-size:1.05rem;color:var(--azul)}
+  .why-list p{color:var(--texto-suave);font-size:.95rem}
+  .big-stat{background:linear-gradient(135deg,var(--azul),var(--azul-2));color:#fff;border-radius:28px;padding:44px;text-align:center;box-shadow:var(--sombra)}
+  .big-stat strong{display:block;font-size:4.2rem;font-weight:800;color:var(--sol);line-height:1}
+  .big-stat .lbl{font-size:1.1rem;opacity:.9;margin-bottom:26px}
+  .big-stat hr{border:0;border-top:1px solid rgba(255,255,255,.15);margin:26px 0}
+
+  /* ---------- Depoimentos ---------- */
+  .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px}
+  .testi{background:#fff;border:1px solid var(--borda);border-radius:var(--raio);padding:26px}
+  .stars{color:var(--sol);letter-spacing:2px;margin-bottom:10px}
+  .testi p{font-style:italic;color:var(--texto-suave);margin-bottom:16px}
+  .testi .who{display:flex;align-items:center;gap:12px;font-weight:700;font-size:.95rem}
+  .avatar{width:42px;height:42px;border-radius:50%;background:var(--celeste);color:#fff;display:grid;place-items:center;font-weight:800}
+  .who small{display:block;font-weight:500;color:var(--texto-suave)}
+
+  /* ---------- Oferta final ---------- */
+  .offer{background:
+      radial-gradient(circle at 15% 20%,rgba(246,180,14,.18),transparent 40%),
+      radial-gradient(circle at 85% 80%,rgba(116,172,223,.25),transparent 45%),
+      var(--azul);color:#fff;text-align:center}
+  .offer h2{color:#fff}
+  .offer .lead{color:rgba(255,255,255,.85)}
+  .offer-box{max-width:560px;margin:36px auto 0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:24px;padding:36px}
+  .offer-box .price{color:#fff}
+  .offer-box .price-note{color:rgba(255,255,255,.8)}
+  .offer-box .price-note b{color:var(--sol)}
+  .offer .btn{width:100%;margin-top:6px}
+  .offer .or{margin:14px 0;font-size:.85rem;opacity:.7}
+
+  /* ---------- FAQ ---------- */
+  .faq{max-width:800px;margin:40px auto 0}
+  details{background:#fff;border:1px solid var(--borda);border-radius:14px;margin-bottom:12px;overflow:hidden}
+  summary{cursor:pointer;list-style:none;padding:20px 24px;font-weight:700;color:var(--azul);display:flex;justify-content:space-between;align-items:center;gap:16px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";font-size:1.5rem;font-weight:400;color:var(--sol-escuro);transition:transform .2s}
+  details[open] summary::after{transform:rotate(45deg)}
+  details p{padding:0 24px 20px;color:var(--texto-suave)}
+
+  /* ---------- Rodapé ---------- */
+  footer{background:#071a33;color:rgba(255,255,255,.7);padding:40px 0 100px;text-align:center;font-size:.9rem}
+  footer strong{color:#fff}
+
+  /* ---------- WhatsApp flutuante + barra mobile ---------- */
+  .wpp-float{position:fixed;right:20px;bottom:20px;z-index:60;width:62px;height:62px;border-radius:50%;background:var(--verde-wpp);display:grid;place-items:center;box-shadow:0 10px 25px rgba(0,0,0,.25);transition:transform .2s}
+  .wpp-float:hover{transform:scale(1.08)}
+  .wpp-float svg{width:34px;height:34px;fill:#fff}
+  .mobile-cta{display:none}
+
+  /* ---------- Animação de entrada ---------- */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.visible{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.pulse{animation:none}html{scroll-behavior:auto}}
+
+  /* ---------- Responsivo ---------- */
+  @media (max-width:960px){
+    .hero-grid,.why{grid-template-columns:1fr}
+    .grid-3,.exp-grid,.testi-grid{grid-template-columns:1fr 1fr}
+    .trust-grid{grid-template-columns:repeat(2,1fr)}
+    .trust-item:nth-child(2){border-right:0}
+    .trust-item:nth-child(-n+2){border-bottom:1px solid rgba(255,255,255,.12)}
+  }
+  @media (max-width:640px){
+    section{padding:60px 0}
+    .container{padding:0 16px}
+    .hero{padding:60px 0 70px}
+    .hero-bullets,.grid-3,.exp-grid,.testi-grid,.grid-2{grid-template-columns:1fr}
+    .hero-ctas .btn{width:100%}
+    .topbar .hide-sm{display:none}
+    .price-card,.plan,.offer-box,.big-stat{padding:26px}
+    .timeline::before{left:23px}
+    .step{gap:16px}
+    .step-num{width:48px;height:48px;font-size:.75rem}
+    .wpp-float{bottom:86px}
+    .mobile-cta{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:55;background:#fff;border-top:1px solid var(--borda);padding:10px 16px;gap:12px;align-items:center;box-shadow:0 -6px 20px rgba(0,0,0,.08)}
+    .mobile-cta div{flex:1;line-height:1.2}
+    .mobile-cta small{color:var(--texto-suave);font-size:.75rem}
+    .mobile-cta strong{display:block;color:var(--azul);font-size:1.1rem}
+    .mobile-cta .btn{padding:14px 20px;font-size:.95rem}
+  }
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     LINKS: troque "5500000000000" pelo número do WhatsApp da
+     Uni Explorer (com DDI 55 + DDD, só números) e, se tiver,
+     coloque o link de checkout em LINK_DO_CHECKOUT.
+     ========================================================= -->
+
+<!-- BARRA DE URGÊNCIA -->
+<div class="topbar">
+  🔥 <strong>Apenas 40 vagas</strong> para a saída de <strong>19/11/2026</strong>
+  <span class="sep hide-sm">|</span><span class="hide-sm">Parcele em até 12x</span>
+</div>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="brand"><div class="brand-mark">U</div>UNI EXPLORER</div>
+      <div class="tag"><span class="dot"></span>Saída confirmada · 19 de novembro de 2026</div>
+      <h1>Buenos Aires <span>completa</span>, sem preocupação nenhuma.</h1>
+      <p class="sub">Ônibus leito, hotel com café da manhã, City Tour, Delta do Tigre e um guia brasileiro do começo ao fim. Você só precisa fazer a mala.</p>
+      <ul class="hero-bullets">
+        <li>Ônibus leito de luxo</li>
+        <li>Hotel com café da manhã</li>
+        <li>City Tour com guia local</li>
+        <li>Passeio ao Delta do Tigre</li>
+        <li>Guia brasileiro na viagem toda</li>
+        <li>2 noites em Buenos Aires</li>
+      </ul>
+      <div class="hero-ctas">
+        <a href="#reservar" class="btn btn-primary pulse">Quero garantir minha vaga →</a>
+        <a href="#roteiro" class="btn btn-ghost">Ver o roteiro</a>
+      </div>
+    </div>
+
+    <aside class="price-card reveal" id="reservar">
+      <div class="ribbon">Vagas limitadas</div>
+      <div class="date">
+        <div class="cal"><b>NOV</b><span>19</span></div>
+        <div><small>Data de saída</small><strong>19 de novembro de 2026</strong></div>
+      </div>
+      <div class="from">Pacote completo a partir de</div>
+      <div class="price"><sup>R$</sup>1.980</div>
+      <p class="price-note">à vista por pessoa · ou <b>parcelado em até 12x</b></p>
+      <a class="btn btn-wpp" target="_blank" rel="noopener"
+         href="https://wa.me/5500000000000?text=Ol%C3%A1!%20Quero%20reservar%20minha%20vaga%20no%20pacote%20Buenos%20Aires%20-%20sa%C3%ADda%2019%2F11%2F2026">
+        <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3C8.8 3 3 8.8 3 16c0 2.3.6 4.5 1.7 6.5L3 29l6.7-1.7c1.9 1 4.1 1.6 6.3 1.6 7.2 0 13-5.8 13-13S23.2 3 16 3zm0 23.6c-2 0-3.9-.5-5.6-1.5l-.4-.2-4 1 1.1-3.9-.3-.4C5.7 19.9 5.2 18 5.2 16 5.2 10 10 5.2 16 5.2S26.8 10 26.8 16 22 26.6 16 26.6zm5.9-8c-.3-.2-1.9-1-2.2-1.1-.3-.1-.5-.2-.7.2-.2.3-.8 1.1-1 1.3-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.4c.2.2 2.4 3.7 5.8 5.2.8.4 1.4.6 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg>
+        Reservar pelo WhatsApp
+      </a>
+      <div class="vagas">
+        <div class="vagas-top"><span>Vagas preenchidas</span><em>Restam poucas</em></div>
+        <div class="bar"><i></i></div>
+      </div>
+      <div class="secure"><span>🔒 Reserva segura</span><span>💳 Cartão em até 12x</span><span>⚡ Pix à vista</span></div>
+    </aside>
+  </div>
+</header>
+
+<!-- FAIXA DE CONFIANÇA -->
+<section class="trust">
+  <div class="container trust-grid">
+    <div class="trust-item"><strong>20 anos</strong><span>de experiência em viagens</span></div>
+    <div class="trust-item"><strong>+21 mil</strong><span>passageiros transportados</span></div>
+    <div class="trust-item"><strong>40</strong><span>vagas por saída</span></div>
+    <div class="trust-item"><strong>100%</strong><span>acompanhado por guia brasileiro</span></div>
+  </div>
+</section>
+
+<!-- O QUE ESTÁ INCLUSO -->
+<section class="bg-soft" id="incluso">
+  <div class="container center">
+    <span class="eyebrow">Tudo resolvido</span>
+    <h2>O que está incluso no seu pacote</h2>
+    <p class="lead">Nada de montar roteiro, comparar hotel ou se perder em outro idioma. A gente cuida de tudo para você só aproveitar.</p>
+
+    <div class="grid-3" style="text-align:left">
+      <div class="feature reveal"><div class="ico">🚌</div><h3>Ônibus leito de luxo</h3><p>Poltronas que reclinam quase como uma cama, para você viajar descansado e chegar pronto para passear.</p></div>
+      <div class="feature reveal"><div class="ico">🏨</div><h3>Hospedagem</h3><p>2 noites em hotel selecionado, com opções de quarto com ou sem piscina.</p></div>
+      <div class="feature reveal"><div class="ico">☕</div><h3>Café da manhã</h3><p>Café da manhã todos os dias no hotel para começar bem cada passeio.</p></div>
+      <div class="feature reveal"><div class="ico">🏙️</div><h3>City Tour</h3><p>Os cartões-postais de Buenos Aires com guia local, que conta a história de cada bairro.</p></div>
+      <div class="feature reveal"><div class="ico">⛵</div><h3>Delta do Tigre</h3><p>Excursão a um dos passeios mais bonitos da região, entre rios, ilhas e casarões.</p></div>
+      <div class="feature reveal"><div class="ico">🇧🇷</div><h3>Guia brasileiro</h3><p>Um guia brasileiro acompanha o grupo do embarque à volta, para resolver qualquer coisa em português.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIÊNCIAS -->
+<section>
+  <div class="container center">
+    <span class="eyebrow">Momentos que você vai viver</span>
+    <h2>Mais do que uma viagem, uma experiência</h2>
+    <div class="exp-grid" style="text-align:left">
+      <div class="exp exp-1 reveal"><div class="exp-body"><h3>A Paris da América do Sul</h3><p>Avenidas, arquitetura europeia, cafés históricos e a energia do tango nas ruas.</p></div></div>
+      <div class="exp exp-2 reveal"><div class="exp-body"><h3>Delta do Tigre</h3><p>Rios, ilhas e um cenário que parece de filme, a pouca distância da capital.</p></div></div>
+      <div class="exp exp-3 reveal"><div class="exp-body"><h3>Viagem confortável</h3><p>Ônibus leito de luxo e um grupo animado. A viagem começa no embarque.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ROTEIRO -->
+<section class="bg-soft" id="roteiro">
+  <div class="container center">
+    <span class="eyebrow">Passo a passo</span>
+    <h2>Como funciona o roteiro</h2>
+    <p class="lead">Organizado para você aproveitar o máximo de Buenos Aires em 2 noites.</p>
+    <!-- Ajuste horários e detalhes conforme o roteiro oficial -->
+    <div class="timeline" style="text-align:left">
+      <div class="step reveal"><div class="step-num">19<br>NOV</div><div class="step-card"><h3>Embarque rumo à Argentina</h3><p>Saída em ônibus leito de luxo, com o guia brasileiro acompanhando o grupo desde o primeiro minuto.</p></div></div>
+      <div class="step reveal"><div class="step-num">DIA<br>2</div><div class="step-card"><h3>Chegada e City Tour</h3><p>Check-in no hotel e City Tour pelos principais pontos de Buenos Aires com guia local.</p></div></div>
+      <div class="step reveal"><div class="step-num">DIA<br>3</div><div class="step-card"><h3>Delta do Tigre</h3><p>Café da manhã no hotel e excursão ao Delta do Tigre. À noite, tempo livre para jantar, ver um show de tango ou passear.</p></div></div>
+      <div class="step reveal"><div class="step-num">DIA<br>4</div><div class="step-card"><h3>Retorno</h3><p>Café da manhã, check-out e embarque de volta, com muita história para contar.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOTÉIS / OPÇÕES -->
+<section id="opcoes">
+  <div class="container center">
+    <span class="eyebrow">Escolha sua opção</span>
+    <h2>Duas opções de hospedagem</h2>
+    <p class="lead">O roteiro é o mesmo nas duas opções. Muda só o tipo de hotel.</p>
+    <div class="grid-2" style="text-align:left">
+      <div class="plan reveal">
+        <h3>Hotel sem piscina</h3>
+        <p class="desc">Ótimo custo-benefício, bem localizado para os passeios.</p>
+        <ul>
+          <li>Ônibus leito de luxo ida e volta</li>
+          <li>2 noites de hospedagem</li>
+          <li>Café da manhã</li>
+          <li>City Tour + Delta do Tigre</li>
+          <li>Guia local e guia brasileiro</li>
+        </ul>
+        <p class="from">A partir de</p>
+        <div class="price" style="font-size:2.4rem"><sup>R$</sup>1.980</div>
+        <p class="price-note">à vista · ou em até 12x</p>
+        <a class="btn btn-primary" target="_blank" rel="noopener" href="https://wa.me/5500000000000?text=Ol%C3%A1!%20Tenho%20interesse%20no%20pacote%20Buenos%20Aires%20-%20hotel%20SEM%20piscina">Quero esta opção</a>
+      </div>
+      <div class="plan destaque reveal">
+        <span class="badge">Mais conforto</span>
+        <h3>Hotel com piscina</h3>
+        <p class="desc">Para quem quer relaxar entre um passeio e outro.</p>
+        <ul>
+          <li>Ônibus leito de luxo ida e volta</li>
+          <li>2 noites em hotel com piscina</li>
+          <li>Café da manhã</li>
+          <li>City Tour + Delta do Tigre</li>
+          <li>Guia local e guia brasileiro</li>
+        </ul>
+        <p class="from">Consulte o valor</p>
+        <div class="price" style="font-size:2.4rem">Sob consulta</div>
+        <p class="price-note">também em até 12x</p>
+        <a class="btn btn-primary" target="_blank" rel="noopener" href="https://wa.me/5500000000000?text=Ol%C3%A1!%20Tenho%20interesse%20no%20pacote%20Buenos%20Aires%20-%20hotel%20COM%20piscina">Quero esta opção</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POR QUE A UNI EXPLORER -->
+<section class="bg-soft">
+  <div class="container why">
+    <div class="reveal">
+      <span class="eyebrow">Por que viajar com a gente</span>
+      <h2>Viaje com quem faz isso há 20 anos</h2>
+      <p class="lead">Viagem internacional dá trabalho: documentos, câmbio, idioma, deslocamentos. Com a Uni Explorer você não se preocupa com nada disso.</p>
+      <ul class="why-list">
+        <li><div class="n">01</div><div><h3>Experiência comprovada</h3><p>Duas décadas organizando viagens e mais de 21 mil passageiros transportados.</p></div></li>
+        <li><div class="n">02</div><div><h3>Grupo pequeno e organizado</h3><p>Apenas 40 vagas por saída, para um atendimento próximo.</p></div></li>
+        <li><div class="n">03</div><div><h3>Suporte em português</h3><p>Guia brasileiro com o grupo a viagem inteira.</p></div></li>
+        <li><div class="n">04</div><div><h3>Cabe no seu bolso</h3><p>Pague à vista com o melhor preço ou parcele em até 12x.</p></div></li>
+      </ul>
+    </div>
+    <div class="big-stat reveal">
+      <strong>+21.000</strong>
+      <div class="lbl">passageiros já viajaram com a Uni Explorer</div>
+      <a href="#reservar" class="btn btn-primary">Quero ser o próximo</a>
+      <hr>
+      <p style="opacity:.85">A saída de 19/11 começa em:</p>
+      <div class="countdown" id="countdown" style="margin-top:14px">
+        <div><b id="cd-d">--</b><small>dias</small></div>
+        <div><b id="cd-h">--</b><small>horas</small></div>
+        <div><b id="cd-m">--</b><small>min</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEPOIMENTOS – substitua pelos depoimentos REAIS de clientes -->
+<section>
+  <div class="container center">
+    <span class="eyebrow">Quem já viajou recomenda</span>
+    <h2>O que nossos passageiros dizem</h2>
+    <div class="testi-grid" style="text-align:left">
+      <div class="testi reveal"><div class="stars">★★★★★</div><p>"[Cole aqui um depoimento real de cliente]"</p><div class="who"><div class="avatar">A</div><div>Nome do cliente<small>Cidade – UF</small></div></div></div>
+      <div class="testi reveal"><div class="stars">★★★★★</div><p>"[Cole aqui um depoimento real de cliente]"</p><div class="who"><div class="avatar">B</div><div>Nome do cliente<small>Cidade – UF</small></div></div></div>
+      <div class="testi reveal"><div class="stars">★★★★★</div><p>"[Cole aqui um depoimento real de cliente]"</p><div class="who"><div class="avatar">C</div><div>Nome do cliente<small>Cidade – UF</small></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- OFERTA FINAL -->
+<section class="offer">
+  <div class="container">
+    <span class="eyebrow">Última chamada</span>
+    <h2>Buenos Aires está te esperando</h2>
+    <p class="lead" style="margin:0 auto">São só 40 vagas. Quando acabarem, a próxima oportunidade pode demorar.</p>
+    <div class="offer-box">
+      <div class="from" style="color:rgba(255,255,255,.75)">Pacote completo a partir de</div>
+      <div class="price"><sup>R$</sup>1.980</div>
+      <p class="price-note">à vista por pessoa · ou <b>em até 12x</b></p>
+      <a class="btn btn-primary pulse" target="_blank" rel="noopener"
+         href="https://wa.me/5500000000000?text=Ol%C3%A1!%20Quero%20reservar%20minha%20vaga%20no%20pacote%20Buenos%20Aires%20-%20sa%C3%ADda%2019%2F11%2F2026">
+        Garantir minha vaga agora →
+      </a>
+      <div class="or">Saída 19/11/2026 · Ônibus leito · Hotel · City Tour · Delta do Tigre · Guia brasileiro</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="bg-soft" id="faq">
+  <div class="container center">
+    <span class="eyebrow">Dúvidas frequentes</span>
+    <h2>Perguntas frequentes</h2>
+    <div class="faq" style="text-align:left">
+      <details><summary>Preciso de passaporte para ir à Argentina?</summary><p>Brasileiros podem entrar na Argentina com passaporte válido ou com RG (carteira de identidade) em bom estado e emitido há menos de 10 anos. A CNH não é aceita como documento de viagem. Menores de idade precisam de documentação específica. Fale com a gente para confirmar o seu caso.</p></details>
+      <details><summary>O que está incluso no valor?</summary><p>Transporte em ônibus leito de luxo, hospedagem com café da manhã, City Tour com guia local, excursão ao Delta do Tigre e guia brasileiro acompanhando o grupo.</p></details>
+      <details><summary>O que não está incluso?</summary><p>Almoços, jantares, ingressos de atrações opcionais (como shows de tango), gastos pessoais e seguro viagem, salvo se informado de outra forma na reserva.</p></details>
+      <details><summary>Como funciona o pagamento?</summary><p>À vista o pacote sai a partir de R$ 1.980 por pessoa, ou você pode parcelar em até 12x. Chame no WhatsApp para ver as condições da opção de hotel que você escolher.</p></details>
+      <details><summary>Qual a diferença entre as opções de hotel?</summary><p>O roteiro e os passeios são os mesmos. A diferença é o hotel: você escolhe entre quarto em hotel com piscina ou sem piscina.</p></details>
+      <details><summary>Posso viajar sozinho(a)?</summary><p>Claro! Muitos passageiros viajam sozinhos e fazem amizades no grupo. Consulte as condições para quarto individual ou compartilhado.</p></details>
+      <details><summary>Preciso levar dinheiro em espécie?</summary><p>Recomendamos levar parte em pesos ou dólares e um cartão internacional. O guia brasileiro dá dicas de câmbio durante a viagem.</p></details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p><strong>Uni Explorer</strong> · 20 anos levando você mais longe</p>
+    <p style="margin-top:8px">Dúvidas? <a href="https://wa.me/5500000000000" target="_blank" rel="noopener" style="color:var(--sol)">Fale com a gente no WhatsApp</a></p>
+    <p style="margin-top:16px;font-size:.8rem;opacity:.6">Valores por pessoa, sujeitos à disponibilidade. Vagas limitadas.</p>
+  </div>
+</footer>
+
+<!-- WhatsApp flutuante -->
+<a class="wpp-float" href="https://wa.me/5500000000000?text=Ol%C3%A1!%20Quero%20saber%20mais%20sobre%20o%20pacote%20Buenos%20Aires" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+  <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3C8.8 3 3 8.8 3 16c0 2.3.6 4.5 1.7 6.5L3 29l6.7-1.7c1.9 1 4.1 1.6 6.3 1.6 7.2 0 13-5.8 13-13S23.2 3 16 3zm0 23.6c-2 0-3.9-.5-5.6-1.5l-.4-.2-4 1 1.1-3.9-.3-.4C5.7 19.9 5.2 18 5.2 16 5.2 10 10 5.2 16 5.2S26.8 10 26.8 16 22 26.6 16 26.6zm5.9-8c-.3-.2-1.9-1-2.2-1.1-.3-.1-.5-.2-.7.2-.2.3-.8 1.1-1 1.3-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.4c.2.2 2.4 3.7 5.8 5.2.8.4 1.4.6 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg>
+</a>
+
+<!-- Barra fixa de compra no celular -->
+<div class="mobile-cta">
+  <div><small>Saída 19/11 · a partir de</small><strong>R$ 1.980</strong></div>
+  <a href="#reservar" class="btn btn-primary">Reservar</a>
+</div>
+
+<script>
+  // Contagem regressiva até a saída (19/11/2026, horário de Brasília)
+  (function(){
+    var alvo = new Date("2026-11-19T00:00:00-03:00").getTime();
+    var d = document.getElementById("cd-d"), h = document.getElementById("cd-h"), m = document.getElementById("cd-m");
+    function tick(){
+      var diff = Math.max(0, alvo - Date.now());
+      d.textContent = Math.floor(diff / 864e5);
+      h.textContent = String(Math.floor(diff / 36e5) % 24).padStart(2, "0");
+      m.textContent = String(Math.floor(diff / 6e4) % 60).padStart(2, "0");
+    }
+    tick(); setInterval(tick, 30000);
+  })();
+
+  // Animação ao rolar
+  (function(){
+    var els = document.querySelectorAll(".reveal");
+    if (!("IntersectionObserver" in window)) { els.forEach(function(e){ e.classList.add("visible"); }); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if (en.isIntersecting) { en.target.classList.add("visible"); io.unobserve(en.target); } });
+    }, { threshold: .12 });
+    els.forEach(function(e){ io.observe(e); });
+  })();
+</script>
+</body>
+</html>
