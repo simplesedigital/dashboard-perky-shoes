@@ -1,0 +1,261 @@
+<title>__TITULO__ · Grade, Conversão e PDP</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: segue o Dashboard E-commerce da Perky (mesmos tokens, tipografia de sistema, cartões surface-1, abas segmentadas) */
+:root{
+  color-scheme: light;
+  --surface-0:#f9f9f7; --surface-1:#fcfcfb; --surface-2:#ffffff;
+  --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#898781;
+  --border:rgba(11,11,11,0.10); --border-strong:rgba(11,11,11,0.18);
+  --grid:#e1e0d9; --baseline:#c3c2b7;
+  --accent:#2a78d6; --accent-ink:#0d366b; --accent-bg:#e6f1fb;
+  --good:#0ca30c; --good-bg:#e7f6e7; --good-ink:#0a6b0a;
+  --warn:#c98500; --warn-bg:#fdf1da; --warn-ink:#8a5c00;
+  --crit:#d03b3b; --crit-bg:#fbe9e9; --crit-ink:#96201f;
+  --orange:#c0601a; --orange-bg:#fbeade; --orange-ink:#833f0f;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7; --s8:#e34948;
+  --radius:8px; --font-sans: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-mono: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --surface-0:#0d0d0d; --surface-1:#1a1a19; --surface-2:#201f1e;
+    --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#898781;
+    --border:rgba(255,255,255,0.10); --border-strong:rgba(255,255,255,0.18);
+    --grid:#2c2c2a; --baseline:#383835;
+    --accent:#3987e5; --accent-ink:#cde2fb; --accent-bg:#0f2438;
+    --good:#0ca30c; --good-bg:#0f2a0f; --good-ink:#7fdc7f;
+    --warn:#fab219; --warn-bg:#332705; --warn-ink:#ffce6b;
+    --crit:#e66767; --crit-bg:#3a1414; --crit-ink:#ff9d9d;
+    --orange:#f0954a; --orange-bg:#3a2410; --orange-ink:#ffb27a;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#3ab53a; --s7:#9085e9; --s8:#e66767;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --surface-0:#0d0d0d; --surface-1:#1a1a19; --surface-2:#201f1e;
+  --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#898781;
+  --border:rgba(255,255,255,0.10); --border-strong:rgba(255,255,255,0.18);
+  --grid:#2c2c2a; --baseline:#383835;
+  --accent:#3987e5; --accent-ink:#cde2fb; --accent-bg:#0f2438;
+  --good:#0ca30c; --good-bg:#0f2a0f; --good-ink:#7fdc7f;
+  --warn:#fab219; --warn-bg:#332705; --warn-ink:#ffce6b;
+  --crit:#e66767; --crit-bg:#3a1414; --crit-ink:#ff9d9d;
+  --orange:#f0954a; --orange-bg:#3a2410; --orange-ink:#ffb27a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#3ab53a; --s7:#9085e9; --s8:#e66767;
+}
+
+*{box-sizing:border-box}
+body{background:var(--surface-0);color:var(--text-primary);font-family:var(--font-sans);margin:0;font-size:14px;line-height:1.5}
+.wrap{max-width:1320px;margin:0 auto;padding-block:1.25rem 3rem;padding-left:max(1.25rem,env(safe-area-inset-left,0px));padding-right:max(1.25rem,env(safe-area-inset-right,0px))}
+.pageheader{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap}
+h1{font-size:19px;font-weight:600;margin:0 0 2px}
+.subtitle{color:var(--text-secondary);font-size:12px;margin:0 0 1rem}
+.theme-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary)}
+.switch{position:relative;width:40px;height:22px;border-radius:999px;border:1px solid var(--border-strong);background:var(--surface-2);cursor:pointer;padding:0}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text-muted);transition:transform .15s}
+.switch[aria-checked="true"]::after{transform:translateX(18px);background:var(--accent)}
+.tabbar{display:flex;gap:4px;background:var(--surface-1);padding:4px;border-radius:var(--radius);margin-bottom:1rem;max-width:640px;overflow-x:auto}
+.tabbtn{flex:1;padding:8px 10px;border:none;background:transparent;color:var(--text-secondary);font-size:13px;font-weight:600;border-radius:6px;cursor:pointer;font-family:var(--font-sans);white-space:nowrap}
+.tabbtn[aria-selected="true"]{background:var(--surface-2);color:var(--text-primary);box-shadow:0 0 0 1px var(--border)}
+.panel{display:none}.panel.active{display:block}
+.kpirow{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:1rem}
+.kpi{background:var(--surface-1);border-radius:var(--radius);padding:1rem}
+.kpi .label{font-size:12px;color:var(--text-secondary);margin:0 0 4px}
+.kpi .value{font-size:24px;font-weight:600;margin:0;font-variant-numeric:tabular-nums}
+.kpi .delta{font-size:12px;margin:4px 0 0;color:var(--text-muted)}
+.section-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:1.75rem 0 .3rem}
+.section-title{font-size:16px;font-weight:600;margin:0}
+.section-desc{font-size:12px;color:var(--text-secondary);margin:0 0 .8rem;max-width:110ch}
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;white-space:nowrap}
+.t-stop{background:var(--crit-bg);color:var(--crit-ink)}.t-warn{background:var(--warn-bg);color:var(--warn-ink)}.t-go{background:var(--good-bg);color:var(--good-ink)}.t-keep{background:var(--accent-bg);color:var(--accent-ink)}.t-fix{background:var(--orange-bg);color:var(--orange-ink)}.t-idle{background:var(--surface-2);color:var(--text-muted);box-shadow:inset 0 0 0 1px var(--border)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.card{background:var(--surface-1);border-radius:12px;padding:1rem 1.1rem;display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:start;min-width:0}
+.card img{width:64px;height:64px;border-radius:var(--radius);object-fit:cover;background:var(--surface-2);box-shadow:0 0 0 1px var(--border)}
+.card .body{min-width:0;display:flex;flex-direction:column;gap:6px}
+.card .name{font-weight:600;font-size:13.5px;line-height:1.3}
+.card .name a{color:inherit;text-decoration:none}.card .name a:hover{color:var(--accent)}
+.card .ref{font-family:var(--font-mono);font-size:11px;color:var(--text-muted)}
+.stats{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12px;color:var(--text-secondary)}
+.stats b{color:var(--text-primary);font-weight:600;font-variant-numeric:tabular-nums}
+.why{font-size:12.5px;color:var(--text-secondary)}.why b{color:var(--text-primary)}
+.sizes{display:flex;flex-wrap:wrap;gap:3px}
+.sz{font-size:11px;font-variant-numeric:tabular-nums;padding:1px 6px;border-radius:4px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);color:var(--text-secondary)}
+.sz.core{color:var(--text-primary);font-weight:600}
+.sz.out{background:var(--crit-bg);color:var(--crit-ink);box-shadow:none;text-decoration:line-through}
+.check{display:flex;flex-wrap:wrap;gap:5px}
+.chk{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px}
+.chk.ok{background:var(--good-bg);color:var(--good-ink)}.chk.no{background:var(--crit-bg);color:var(--crit-ink)}
+.filterbar{display:flex;flex-wrap:wrap;gap:4px;background:var(--surface-1);padding:4px;border-radius:var(--radius);margin-bottom:12px;width:fit-content;max-width:100%}
+.filterbar button{font-family:var(--font-sans);font-size:12.5px;padding:5px 10px;border:none;background:transparent;color:var(--text-secondary);border-radius:6px;cursor:pointer}
+.filterbar button[aria-pressed="true"]{background:var(--surface-2);color:var(--text-primary);box-shadow:0 0 0 1px var(--border)}
+.filterbar button .c{color:var(--text-muted);font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface-1)}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:980px}
+thead th{position:sticky;top:0;background:var(--surface-1);text-align:left;padding:8px 10px;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border-strong);white-space:nowrap;cursor:pointer;user-select:none}
+thead th:hover{color:var(--text-primary)}
+thead th[aria-sort]::after{content:" ▼";color:var(--accent);font-size:10px}thead th[aria-sort="ascending"]::after{content:" ▲"}
+tbody td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap;font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:none}
+td.r,th.r{text-align:right}
+td .mini{display:flex;align-items:center;gap:8px}
+td .mini img{width:28px;height:28px;border-radius:4px;object-fit:cover}
+td .mini a{color:inherit;text-decoration:none;max-width:260px;overflow:hidden;text-overflow:ellipsis}
+td .mini a:hover{color:var(--accent)}
+.yes{color:var(--good-ink)}.no{color:var(--crit-ink);font-weight:600}
+.notecard{background:var(--surface-1);border-radius:12px;padding:1rem 1.1rem;font-size:13px;color:var(--text-secondary)}
+.notecard ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.notecard b{color:var(--text-primary)}
+.mono{font-family:var(--font-mono)}
+button:focus-visible,a:focus-visible,th:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media print{.tabbar,.theme-toggle,.filterbar{display:none!important}.panel{display:block!important}}
+</style>
+
+<div class="wrap">
+<div class="pageheader">
+  <div>
+    <h1 id="h1"></h1>
+    <p class="subtitle" id="subtitle"></p>
+  </div>
+  <div class="theme-toggle">Aparência <button type="button" class="switch" id="themeSw" role="switch" aria-checked="false" aria-label="Tema escuro"></button></div>
+</div>
+
+<div class="tabbar" role="tablist">
+  <button class="tabbtn" role="tab" aria-selected="true" data-tab="acoes" id="tab-acoes">Ações por produto</button>
+  <button class="tabbtn" role="tab" aria-selected="false" data-tab="tabela" id="tab-tabela">Tabela completa</button>
+  <button class="tabbtn" role="tab" aria-selected="false" data-tab="criterios" id="tab-criterios">Fontes e critérios</button>
+</div>
+
+<div class="kpirow" id="kpis"></div>
+
+<div class="panel active" id="p-acoes">
+  <section id="s-pausar"></section>
+  <section id="s-escalar"></section>
+  <section id="s-manter"></section>
+  <section id="s-pdp"></section>
+  <section id="s-pdpok"></section>
+</div>
+
+<div class="panel" id="p-tabela">
+  <div class="section-title-row"><h2 class="section-title">Tabela completa da coleção</h2></div>
+  <p class="section-desc">Clique no título da coluna para ordenar. Conversão = pedidos ÷ sessões com visita à página do produto, ambos no <span id="janela"></span>.</p>
+  <div class="filterbar" id="filters"></div>
+  <div class="tablewrap"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+</div>
+
+<div class="panel" id="p-criterios">
+  <div class="section-title-row"><h2 class="section-title">Fontes e critérios</h2></div>
+  <p class="section-desc">De onde vem cada número e como cada produto foi classificado.</p>
+  <div class="notecard"><ul id="method"></ul></div>
+</div>
+</div>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+const D=JSON.parse(document.getElementById('data').textContent);
+const R=D.rows, REF=D.ref, M=D.meta;
+const fd=s=>s.slice(8,10)+'/'+s.slice(5,7);
+const JANELA=`período de ${fd(M.posthog_inicio)} a ${fd(M.data_fim)}`;
+document.getElementById('h1').textContent=`${M.colecao} · Grade, conversão e PDP`;
+document.getElementById('subtitle').textContent=`Perky Shoes · ${R.length} produtos com a tag ${M.tag} · vendas e estoque via API Vnda, acessos via PostHog · dados até ${fd(M.data_fim)}/${M.data_fim.slice(0,4)}`;
+document.getElementById('janela').textContent=JANELA;
+R.forEach(r=>{if(r.grupo==='pdp'&&r.fotos>1&&r.modelo&&r.video) r.grupo='pdp_ok';});
+const brl=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+const pct=v=>v==null?'—':v.toLocaleString('pt-BR',{maximumFractionDigits:2})+'%';
+const n=v=>v.toLocaleString('pt-BR');
+const dt=s=>s?s.slice(8,10)+'/'+s.slice(5,7):'—';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const GROUPS={pausar:['Segurar divulgação','t-stop'],atencao:['Sem ser destaque','t-warn'],escalar:['Dar mais destaque','t-go'],manter:['Manter ritmo','t-keep'],pdp:['Página incompleta','t-fix'],pdp_ok:['Página completa, não vende','t-fix'],monitorar:['Monitorar','t-idle'],novo:['Lançamento recente','t-idle']};
+
+// KPIs
+const sum=k=>R.reduce((a,r)=>a+(r[k]||0),0);
+const base=R.filter(r=>r.grupo!=='novo');
+const kp=[[n(sum('pecas')),'peças vendidas desde o cadastro'],[brl(sum('receita')),'receita (pedidos não cancelados)'],[n(sum('estoque')),'peças em estoque hoje'],[n(sum('sessoes')),`sessões nas PDPs desde ${fd(M.posthog_inicio)}`],[pct(REF),'conversão média da coleção']];
+document.getElementById('kpis').innerHTML=kp.map(([b,s])=>`<div class="kpi"><p class="label">${s[0].toUpperCase()+s.slice(1)}</p><p class="value">${b}</p></div>`).join('');
+
+function sizes(r){
+  if(r.single) return `<span class="stats"><span>Peça única · <b>${r.estoque}</b> un. em estoque</span></span>`;
+  // rebuild ordered size list
+  const zs=new Set(r.tamanhos_zerados);
+  return `<div class="sizes">${r._sizes.map(s=>`<span class="sz ${zs.has(s)?'out':''} ${['35','36','37','38'].includes(s)?'core':''}">${s}</span>`).join('')}</div>`;
+}
+function stats(r){return `<div class="stats"><span>Vendas <b>${r.pecas}</b></span><span>Receita <b>${brl(r.receita)}</b></span><span>Sessões <b>${n(r.sessoes)}</b></span><span>Conv. <b>${pct(r.conv)}</b></span><span>Estoque <b>${r.estoque}</b></span></div>`}
+function head(r){return `<img src="${r.thumb}" alt="" loading="lazy"><div class="body"><div class="name"><a href="${r.url}" target="_blank" rel="noopener">${esc(r.nome)}</a></div><div class="ref">${r.ref} · 1ª venda ${dt(r.primeira_venda)}</div>`}
+function checklist(r){
+  const it=[[r.fotos>1,r.fotos>1?`${r.fotos} fotos`:'Só 1 foto'],[r.modelo,r.modelo?'Foto com modelo':'Sem foto com modelo'],[r.video,r.video?'Vídeo (PowerClip)':'Sem popup de vídeo']];
+  return `<div class="check">${it.map(([ok,t])=>`<span class="chk ${ok?'ok':'no'}">${ok?'✓':'✕'} ${t}</span>`).join('')}</div>`;
+}
+
+// size order helper (we only have zeroed list + total); reconstruct from known size ranges
+
+function why(r){
+  if(r.grupo==='pausar'){
+    if(r.single) return `Restam só <b>${r.estoque}</b> un. Divulgar agora gera tráfego para um produto que esgota na primeira leva.`;
+    const c=r.core_zerados; return `${c.length?`Sem os tamanhos centrais <b>${c.join(', ')}</b>`:'Grade quebrada'} · ${r.tamanhos_ok} de ${r.tamanhos_total} tamanhos e <b>${r.estoque}</b> pares no total. Quem chega pela divulgação não acha o número.`;
+  }
+  if(r.grupo==='atencao') return `Falta o <b>${r.core_zerados.join(', ')}</b> (tamanho central). Pode aparecer na divulgação, mas sem ser o destaque até repor.`;
+  if(r.grupo==='pdp_ok') return `Já tem fotos, modelo e vídeo e converte só ${pct(r.conv)}. Testar outra foto principal, revisar a descrição e avaliar se o preço está pesando.`;
+  if(r.grupo==='escalar') return `Converte <b>${(r.conv/REF).toLocaleString('pt-BR',{maximumFractionDigits:1})}×</b> a média da coleção com ${r.tamanhos_ok}/${r.tamanhos_total} tamanhos e ${r.estoque} pares, mas recebe só ${n(r.sessoes)} sessões (os líderes da coleção passam de ${n(Math.round([...R].sort((a,b)=>b.sessoes-a.sessoes)[2].sessoes/100)*100)}).`;
+  if(r.grupo==='manter') return `Vendeu <b>${r.pecas}</b> peças, converte ${pct(r.conv)} (média ${pct(REF)}) com ${n(r.sessoes)} sessões e ${r.single?r.estoque+' un.':r.tamanhos_ok+'/'+r.tamanhos_total+' tamanhos e '+r.estoque+' pares'}, sem tamanho central zerado. A divulgação atual está funcionando.`;
+  if(r.grupo==='pdp'){const miss=[]; if(r.fotos<=1)miss.push('mais fotos'); if(!r.modelo)miss.push('foto com modelo'); if(!r.video)miss.push('vídeo'); return miss.length?`Grade cheia e tráfego, mas converte ${pct(r.conv)}. Falta na PDP: <b>${miss.join(', ')}</b>.`:`PDP já tem os 3 elementos e mesmo assim converte ${pct(r.conv)}. Olhar preço, descrição, avaliações e a primeira foto.`}
+  return '';
+}
+
+function section(id,groups,eyebrow,title,desc,showCheck){
+  const list=R.filter(r=>groups.includes(r.grupo)).sort((a,b)=>groups.indexOf(a.grupo)-groups.indexOf(b.grupo)||b.sessoes-a.sessoes);
+  const el=document.getElementById(id);
+  el.innerHTML=`<div class="section-title-row"><h2 class="section-title">${title}</h2><span class="badge ${GROUPS[groups[0]][1]}">${list.length} produto${list.length>1?'s':''}</span></div><p class="section-desc">${desc}</p>
+  <div class="cards">${list.map(r=>`<article class="card">${head(r)}${stats(r)}${showCheck?checklist(r):sizes(r)}<div class="why">${why(r)}</div>${groups.length>1?`<span class="badge ${GROUPS[r.grupo][1]}" style="align-self:flex-start">${GROUPS[r.grupo][0]}</span>`:''}</div></article>`).join('')}</div>`;
+}
+section('s-pausar',['pausar','atencao'],'Segurar divulgação','Segurar a divulgação por enquanto','Estão sem os tamanhos mais procurados (35 a 38), com menos de 60% da grade ou menos de 10 pares; acessórios com 3 unidades ou menos. Se divulgarmos agora, a cliente chega e não encontra o número dela. Em amarelo, os que perderam só um tamanho central: podem aparecer, mas sem ser o destaque. Vários estão entre os mais vendidos, então a ação é repor, não abandonar.',false);
+section('s-escalar',['escalar'],'Dar mais destaque','Dar mais destaque no feed, stories e parcerias','Quem entra na página compra bem acima da média, mas pouca gente está vendo. Critério: grade saudável (≥80% dos tamanhos, nenhum central zerado), pelo menos 3 pedidos no período, conversão ≥ 1,3× a média da coleção ('+pct(REF)+') e até 500 sessões. São os produtos que mais rendem com exposição extra.',false);
+section('s-manter',['manter'],'Manter ritmo','Manter o ritmo atual de divulgação','Já vendem bem, convertem bem e têm estoque. Critério: Grade cheia ou quase cheia (≥70% dos tamanhos, nenhum tamanho central entre 35 e 38 zerado, 12 pares ou mais), conversão igual ou acima da média da coleção e pelo menos 4 pedidos desde '+fd(M.posthog_inicio)+'. O que está sendo feito está funcionando; é acompanhar o estoque.',false);
+section('s-pdp',['pdp'],'Página incompleta','Páginas de produto incompletas','Têm estoque e recebem visitas (90 sessões ou mais), mas convertem abaixo de 70% da média da coleção. Falta na página algum dos 3 elementos que ajudam a cliente a decidir: mais de uma foto, foto com modelo usando e popup de vídeo.',true);
+section('s-pdpok',['pdp_ok'],'Página completa, não vende','Página completa, mas não vende','Mesmo critério de estoque, visitas e conversão baixa, mas a página já tem fotos, modelo e vídeo. Vale testar outra foto principal, revisar a descrição e entender se o preço está pesando.',true);
+
+// Table
+const cols=[['nome','Produto'],['grupo','Ação'],['cadastro','Cadastro'],['pecas','Vendas','r'],['receita','Receita','r'],['sessoes','Sessões','r'],['conv','Conv.','r'],['estoque','Estoque','r'],['grade','Grade','r'],['fotos','Fotos','r'],['modelo','Modelo'],['video','Vídeo']];
+R.forEach(r=>r.grade=r.tamanhos_ok/r.tamanhos_total);
+let sortK='receita',asc=false,filter='todos';
+const thead=document.querySelector('#tbl thead'),tbody=document.querySelector('#tbl tbody');
+thead.innerHTML='<tr>'+cols.map(([k,l,c])=>`<th data-k="${k}" class="${c||''}" tabindex="0">${l}</th>`).join('')+'</tr>';
+thead.querySelectorAll('th').forEach(th=>{const go=()=>{const k=th.dataset.k; if(sortK===k)asc=!asc; else {sortK=k;asc=['nome','grupo','cadastro'].includes(k);} draw();}; th.onclick=go; th.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}}});
+const fl=[['todos','Todos'],['pausar','Segurar'],['atencao','Sem ser destaque'],['escalar','Mais destaque'],['manter','Manter'],['pdp','Página incompleta'],['pdp_ok','Página completa'],['monitorar','Monitorar'],['novo','Recentes']];
+const fEl=document.getElementById('filters');
+fEl.innerHTML=fl.map(([k,l])=>`<button type="button" data-f="${k}" aria-pressed="${k==='todos'}">${l} <span class="c">${k==='todos'?R.length:R.filter(r=>r.grupo===k).length}</span></button>`).join('');
+fEl.querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.f;fEl.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));draw();});
+function draw(){
+  thead.querySelectorAll('th').forEach(th=>{th.removeAttribute('aria-sort'); if(th.dataset.k===sortK) th.setAttribute('aria-sort',asc?'ascending':'descending');});
+  const rows=R.filter(r=>filter==='todos'||r.grupo===filter).slice().sort((a,b)=>{let x=a[sortK],y=b[sortK]; if(x==null)x=-1; if(y==null)y=-1; if(typeof x==='string') return asc?x.localeCompare(y):y.localeCompare(x); return asc?x-y:y-x;});
+  tbody.innerHTML=rows.map(r=>`<tr>
+    <td><div class="mini"><img src="${r.thumb}" alt=""><a href="${r.url}" target="_blank" rel="noopener" title="${esc(r.nome)}">${esc(r.nome)}</a></div></td>
+    <td><span class="badge ${GROUPS[r.grupo][1]}">${GROUPS[r.grupo][0]}</span></td>
+    <td>${dt(r.cadastro)}</td>
+    <td class="r">${r.pecas}</td><td class="r">${brl(r.receita)}</td><td class="r">${n(r.sessoes)}</td>
+    <td class="r">${r.grupo==='novo'?'—':pct(r.conv)}</td><td class="r">${r.estoque}</td>
+    <td class="r">${r.single?'única':r.tamanhos_ok+'/'+r.tamanhos_total}</td><td class="r">${r.fotos}</td>
+    <td class="${r.modelo?'yes':'no'}">${r.modelo?'sim':'não'}</td><td class="${r.video?'yes':'no'}">${r.video?'sim':'não'}</td></tr>`).join('');
+}
+draw();
+
+document.getElementById('method').innerHTML=[
+ `<b>Produtos:</b> API da VNDA, filtro pela tag <span class="mono">${M.tag}</span> (${R.length} produtos ativos). Estoque e grade lidos por variante em ${fd(M.data_fim)}.`,
+ '<b>Data de cadastro:</b> a API não expõe a data de criação do produto; usei a data de upload da primeira imagem como aproximação. A coluna "1ª venda" mostra quando o produto vendeu pela primeira vez.',
+ `<b>Vendas:</b> todos os pedidos da VNDA de ${fd(M.pedidos_inicio)} a ${fd(M.data_fim)} (${n(M.n_pedidos)} pedidos), excluindo cancelados. Receita = preço praticado × quantidade, sem frete.`,
+ `<b>Acessos:</b> PostHog, sessões únicas com pageview em <span class="mono">/produto/…-ID</span>. A conversão compara pedidos e sessões no mesmo intervalo (${JANELA}).`,
+ `<b>Foto com modelo:</b> conferida visualmente em todas as ${n(M.n_imagens)} imagens. A tabela de medidas não conta como foto.`,
+ `<b>Popup de vídeo:</b> o vídeo da PDP é o widget PowerClip da Performa. Considerei com vídeo os produtos que têm clipe ativo no manifesto do PowerClip (${R.filter(r=>r.video).length} de ${R.length}).`,
+ '<b>Lançamentos recentes:</b> produtos cadastrados há menos de 10 dias ou com menos de 20 sessões ficam fora da classificação até ter dados suficientes.',
+ '<b>Limites:</b> com 1 ou 2 pedidos a conversão oscila muito, por isso exigi pelo menos 3 pedidos para recomendar mais destaque.',
+ ...(M.notas||[])
+].map(x=>`<li>${x}</li>`).join('');
+
+// abas
+document.querySelectorAll('.tabbtn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabbtn').forEach(x=>x.setAttribute('aria-selected',x===b));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='p-'+b.dataset.tab));});
+// tema
+(function(){const sw=document.getElementById('themeSw');const root=document.documentElement;
+ const isDark=()=>root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+ const sync=()=>sw.setAttribute('aria-checked',isDark());sync();
+ sw.onclick=()=>{root.dataset.theme=isDark()?'light':'dark';sync();};})();
+</script>
