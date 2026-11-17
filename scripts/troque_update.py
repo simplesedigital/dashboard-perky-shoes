@@ -58,7 +58,20 @@ def ref_of(sku):
     return re.sub(r"-[^-]+$", "", sku) if sku and re.search(r"-\d{2}$", sku) else (sku or "")
 
 
+def load_previous():
+    """Solicitações já gravadas no index.html: id -> (updated_at, linha)."""
+    for l in open(INDEX, encoding="utf-8"):
+        if l.startswith("const TROQUE = "):
+            old = json.loads(l[len("const TROQUE = "):].rstrip().rstrip(";"))
+            if "ids" not in old:
+                return {}
+            dicts = {k: old[k] for k in ("tipos", "status", "motivos", "submotivos", "transportadoras")}
+            return {i: (u, r, dicts) for (i, u), r in zip(old["ids"], old["rows"])}
+    return {}
+
+
 def main():
+    prev = load_previous()
     first = get("/order/list?page=1")
     pages = first.get("total_pages", 1)
     rows = list(first["list"])
@@ -66,9 +79,11 @@ def main():
         rows += get(f"/order/list?page={p}")["list"]
     print(f"lista: {len(rows)} solicitações em {pages} páginas", file=sys.stderr)
 
-    ids = [r["id"] for r in rows]
+    # só busca o detalhe do que é novo ou mudou desde a última atualização
+    novos = [r["id"] for r in rows if r["id"] not in prev or prev[r["id"]][0] != r.get("updated_at")]
+    print(f"detalhes a buscar: {len(novos)} (reaproveitando {len(rows) - len(novos)})", file=sys.stderr)
     with ThreadPoolExecutor(6) as ex:
-        dets = list(ex.map(detail, ids))
+        fetched = dict(zip(novos, ex.map(detail, novos)))
 
     reasons, subs, types, statuses, couriers = [], [], [], [], []
     def idx(lst, v):
@@ -77,8 +92,25 @@ def main():
             lst.append(v)
         return lst.index(v)
 
-    out = []
-    for d in dets:
+    def remap(row, dd):
+        # linha antiga usa índices dos dicionários antigos: reindexa nos novos
+        row = list(row)
+        row[2] = idx(types, dd["tipos"][row[2]])
+        row[3] = idx(statuses, dd["status"][row[3]])
+        row[7] = idx(couriers, dd["transportadoras"][row[7]])
+        row[12] = [[*it[:4], idx(reasons, dd["motivos"][it[4]]), idx(subs, dd["submotivos"][it[5]]), *it[6:]]
+                   for it in row[12]]
+        return row
+
+    out, id_list = [], []
+    for r in rows:
+        oid, upd = r["id"], r.get("updated_at")
+        if oid not in fetched:
+            out.append(remap(prev[oid][1], prev[oid][2]))
+            id_list.append([oid, upd])
+            continue
+        d = fetched[oid]
+        id_list.append([oid, upd])
         tr = d.get("tracking") or {}
         items = []
         for it in d.get("items") or []:
@@ -111,7 +143,9 @@ def main():
             1 if d.get("is_second_request") or d.get("is_second_reverse") else 0,
             items,
         ])
-    out.sort(key=lambda r: r[1] or "")
+    order = sorted(range(len(out)), key=lambda i: out[i][1] or "")
+    out = [out[i] for i in order]
+    id_list = [id_list[i] for i in order]
     payload = {
         "atualizado_em": datetime.now(BRT).strftime("%Y-%m-%dT%H:%M"),
         "cols": ["pedido", "data", "tipo", "status", "valor", "valor_troca", "valor_reembolso",
@@ -119,6 +153,7 @@ def main():
         "item_cols": ["ref", "sku", "qtd", "preco", "motivo", "submotivo", "troca", "sku_novo", "removido"],
         "tipos": types, "status": statuses, "motivos": reasons, "submotivos": subs, "transportadoras": couriers,
         "rows": out,
+        "ids": id_list,
     }
     line = "const TROQUE = " + json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + ";"
 
@@ -128,8 +163,9 @@ def main():
     if pos is not None:
         lines[pos] = line
     else:
-        dpos = next(i for i, l in enumerate(lines) if l.startswith("const DATA = "))
-        lines.insert(dpos + 1, line)
+        # longe da linha DATA (que a rotina da VNDA reescreve) para o git não ver conflito
+        dpos = next(i for i, l in enumerate(lines) if l.startswith("/* ---------------- LOGÍSTICA: TROCAS E DEVOLUÇÕES"))
+        lines.insert(dpos, line)
     open(INDEX, "w", encoding="utf-8").write("\n".join(lines))
     print(f"TROQUE gravado: {len(out)} solicitações, {sum(len(r[-1]) for r in out)} itens, {len(line)//1024} KB",
           file=sys.stderr)
