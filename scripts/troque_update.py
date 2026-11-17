@@ -60,7 +60,7 @@ def ref_of(sku):
 
 def load_previous():
     """Solicitações já gravadas no index.html: id -> (updated_at, linha)."""
-    for l in open(INDEX, encoding="utf-8"):
+    for l in open(INDEX, encoding="utf-8", newline=""):
         if l.startswith("const TROQUE = "):
             old = json.loads(l[len("const TROQUE = "):].rstrip().rstrip(";"))
             if "ids" not in old:
@@ -157,7 +157,7 @@ def main():
     }
     line = "const TROQUE = " + json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + ";"
 
-    html = open(INDEX, encoding="utf-8").read()
+    html = open(INDEX, encoding="utf-8", newline="").read()
     lines = html.split("\n")
     pos = next((i for i, l in enumerate(lines) if l.startswith("const TROQUE = ")), None)
     if pos is not None:
@@ -166,7 +166,7 @@ def main():
         # longe da linha DATA (que a rotina da VNDA reescreve) para o git não ver conflito
         dpos = next(i for i, l in enumerate(lines) if l.startswith("/* ---------------- LOGÍSTICA: TROCAS E DEVOLUÇÕES"))
         lines.insert(dpos, line)
-    open(INDEX, "w", encoding="utf-8").write("\n".join(lines))
+    open(INDEX, "w", encoding="utf-8", newline="").write("\n".join(lines))
     print(f"TROQUE gravado: {len(out)} solicitações, {sum(len(r[-1]) for r in out)} itens, {len(line)//1024} KB",
           file=sys.stderr)
 
