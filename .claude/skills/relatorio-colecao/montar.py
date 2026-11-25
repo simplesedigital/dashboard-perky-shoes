@@ -23,6 +23,7 @@ def main():
     ap.add_argument("--dir", required=True); ap.add_argument("--tag", required=True)
     ap.add_argument("--colecao", required=True); ap.add_argument("--posthog-inicio", required=True)
     ap.add_argument("--views", required=True); ap.add_argument("--nota", action="append", default=[])
+    ap.add_argument("--excluir-tag", action="append", default=[], help="tag VNDA de produtos que têm a tag da coleção por erro de cadastro e devem ficar de fora (ex. alpargatas-reuse)")
     ap.add_argument("--mudancas", default=None, help="JSON {desde, nota, blocos:[{titulo, tom, itens:[html]}]} para o bloco O que mudou")
     ap.add_argument("--pagina-atualizada", default="", help="ids separados por vírgula cujas PDPs mudaram depois da janela de conversão")
     ap.add_argument("--data-fim", default=date.today().isoformat())
@@ -30,12 +31,14 @@ def main():
     a = ap.parse_args()
     a.posthog_fim = a.posthog_fim or a.data_fim
     os.chdir(a.dir)
-    P = {p["id"]: p for p in json.load(open("prods.json"))}
+    P = {p["id"]: p for p in json.load(open("prods.json")) if not set(a.excluir_tag) & set(p["tag_names"])}
     V = {}
     for l in open(a.views).read().split():
         k, v = l.split(","); V[int(k)] = int(v)
     O = [o for o in json.load(open("orders_all.json")) if o["status"] != "canceled"]
     IM = {pid: json.load(open(f"imgs/{pid}.json")) for pid in P}
+    if a.excluir_tag:
+        a.nota.append("<b>Fora da análise:</b> produtos com a tag da coleção mas que não fazem parte dela (tags " + ", ".join(a.excluir_tag) + ").")
     rev = json.load(open("revisao.json"))
     NO_MODEL = set(map(int, rev["sem_modelo"])); CHART = set(map(int, rev["ultima_imagem_e_tabela_de_medidas"]))
     man = json.load(open("powerclip.json"))
