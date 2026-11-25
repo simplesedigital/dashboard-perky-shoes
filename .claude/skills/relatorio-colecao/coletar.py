@@ -27,10 +27,17 @@ _op = urllib.request.build_opener(); _op.addheaders = [("User-Agent", UA)]; urll
 
 
 def get(url, headers=False):
-    req = urllib.request.Request(url, headers={"Accept": "application/json", "User-Agent": UA})
-    with urllib.request.urlopen(req, timeout=90) as r:
-        body = json.loads(r.read().decode())
-        return (body, dict(r.headers)) if headers else body
+    import time, urllib.error
+    for tent in range(6):
+        req = urllib.request.Request(url, headers={"Accept": "application/json", "User-Agent": UA})
+        try:
+            with urllib.request.urlopen(req, timeout=90) as r:
+                body = json.loads(r.read().decode())
+                return (body, dict(r.headers)) if headers else body
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 502, 503, 504) and tent < 5:
+                time.sleep(int(e.headers.get("Retry-After") or 0) or 2 ** (tent + 1)); continue
+            raise
 
 
 def main():
@@ -55,7 +62,7 @@ def main():
     # imagens
     def imgs(p):
         im = get(f"{VNDA}/products/{p['id']}/images"); json.dump(im, open(f"imgs/{p['id']}.json", "w")); return im
-    with cf.ThreadPoolExecutor(8) as ex: IM = dict(zip([p["id"] for p in prods], ex.map(imgs, prods)))
+    with cf.ThreadPoolExecutor(4) as ex: IM = dict(zip([p["id"] for p in prods], ex.map(imgs, prods)))
     first = min(i["updated_at"][:10] for v in IM.values() for i in v)
     print("imagem mais antiga (proxy de cadastro):", first)
 
@@ -65,7 +72,7 @@ def main():
     _, h = get(f"{VNDA}/orders?start={first}&finish={hoje}&per_page=100", True)
     pages = json.loads(h.get("X-Pagination") or h.get("x-pagination"))["total_pages"]
     def op(n): return get(f"{VNDA}/orders?start={first}&finish={hoje}&per_page=100&page={n}")
-    with cf.ThreadPoolExecutor(6) as ex: O = [o for chunk in ex.map(op, range(1, pages + 1)) for o in chunk]
+    with cf.ThreadPoolExecutor(3) as ex: O = [o for chunk in ex.map(op, range(1, pages + 1)) for o in chunk]
     O = list({o["code"]: o for o in O}.values())
     json.dump(O, open("orders_all.json", "w"))
     print("pedidos:", len(O), "de", first, "a", hoje)

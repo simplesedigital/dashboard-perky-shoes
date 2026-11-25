@@ -40,6 +40,12 @@ Escreva tudo em português. Trabalhe numa pasta do scratchpad (`$W`). `$K` = est
 
 7. **Mensagem de WhatsApp**: escreva a partir de `grupos.txt` seguindo `mensagem-whatsapp.md`. Entregue num bloco de código para copiar. Lembre que o link do Artifact é privado até ser compartilhado pelo menu Share.
 
+## Edições de acompanhamento (comparar com o relatório anterior)
+- Compare vendas por dia (antes × últimos 7 dias), estoque/tamanhos centrais, preço e status (ativo) por produto, agrupando pelos grupos da mensagem anterior. Normalize pelo total da loja (pedidos/dia) antes de concluir.
+- Monte um JSON `{desde, nota, blocos:[{titulo, tom: go|stop|warn|idle, itens:[html]}]}` e passe com `--mudancas`; vira o bloco "O que mudou" no topo da aba Ações.
+- Produtos cuja página ganhou vídeo ou foto com modelo depois da janela de conversão: passe os ids em `--pagina-atualizada`. Eles vão para "Página atualizada, aguardando resultado" em vez de "página completa, mas não vende" (a conversão medida é de antes da mudança).
+- Publique como Artifact novo (o anterior fica como histórico) e na mensagem destaque o que o time de design/social já entregou.
+
 ## Grupos (regras em `montar.py`; mantenha-as salvo pedido do usuário)
 
 Média de referência = pedidos ÷ sessões da coleção na janela do PostHog (sem os recentes).
@@ -49,6 +55,7 @@ Média de referência = pedidos ÷ sessões da coleção na janela do PostHog (s
 - **Manter o ritmo** (`manter`): grade cheia ou quase (≥70%, nenhum central zerado, ≥12 pares), conversão ≥ média e ≥4 pedidos.
 - **Página incompleta** (`pdp`): grade saudável, ≥90 sessões, conversão <70% da média e falta algum dos 3 elementos (mais de 1 foto, foto com modelo, vídeo).
 - **Página completa, mas não vende** (`pdp_ok`): mesmo critério, mas já tem os 3 elementos.
+- **Página atualizada, aguardando** (`pdp_novo`): página completada depois da janela de conversão (via `--pagina-atualizada`).
 - **Monitorar** e **Recente** (cadastro há <10 dias ou <20 sessões): ficam só na tabela, fora da mensagem.
 
 ## Exemplo de referência

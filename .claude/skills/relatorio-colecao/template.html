@@ -130,11 +130,13 @@ button:focus-visible,a:focus-visible,th:focus-visible{outline:2px solid var(--ac
 <div class="kpirow" id="kpis"></div>
 
 <div class="panel active" id="p-acoes">
+  <section id="s-mudancas"></section>
   <section id="s-pausar"></section>
   <section id="s-escalar"></section>
   <section id="s-manter"></section>
   <section id="s-pdp"></section>
   <section id="s-pdpok"></section>
+  <section id="s-pdpnovo"></section>
 </div>
 
 <div class="panel" id="p-tabela">
@@ -166,12 +168,12 @@ const pct=v=>v==null?'—':v.toLocaleString('pt-BR',{maximumFractionDigits:2})+'
 const n=v=>v.toLocaleString('pt-BR');
 const dt=s=>s?s.slice(8,10)+'/'+s.slice(5,7):'—';
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const GROUPS={pausar:['Segurar divulgação','t-stop'],atencao:['Sem ser destaque','t-warn'],escalar:['Dar mais destaque','t-go'],manter:['Manter ritmo','t-keep'],pdp:['Página incompleta','t-fix'],pdp_ok:['Página completa, não vende','t-fix'],monitorar:['Monitorar','t-idle'],novo:['Lançamento recente','t-idle']};
+const GROUPS={pausar:['Segurar divulgação','t-stop'],atencao:['Sem ser destaque','t-warn'],escalar:['Dar mais destaque','t-go'],manter:['Manter ritmo','t-keep'],pdp:['Página incompleta','t-fix'],pdp_ok:['Página completa, não vende','t-fix'],pdp_novo:['Página atualizada, aguardando','t-keep'],monitorar:['Monitorar','t-idle'],novo:['Lançamento recente','t-idle']};
 
 // KPIs
 const sum=k=>R.reduce((a,r)=>a+(r[k]||0),0);
 const base=R.filter(r=>r.grupo!=='novo');
-const kp=[[n(sum('pecas')),'peças vendidas desde o cadastro'],[brl(sum('receita')),'receita (pedidos não cancelados)'],[n(sum('estoque')),'peças em estoque hoje'],[n(sum('sessoes')),`sessões nas PDPs desde ${fd(M.posthog_inicio)}`],[pct(REF),'conversão média da coleção']];
+const kp=[[n(sum('pecas')),'peças vendidas desde o cadastro'],[brl(sum('receita')),'receita (pedidos não cancelados)'],[n(sum('estoque')),'peças em estoque hoje'],[n(sum('sessoes')),`sessões nas PDPs (${fd(M.posthog_inicio)} a ${fd(M.posthog_fim||M.data_fim)})`],[pct(REF),'conversão média da coleção']];
 document.getElementById('kpis').innerHTML=kp.map(([b,s])=>`<div class="kpi"><p class="label">${s[0].toUpperCase()+s.slice(1)}</p><p class="value">${b}</p></div>`).join('');
 
 function sizes(r){
@@ -195,6 +197,7 @@ function why(r){
     const c=r.core_zerados; return `${c.length?`Sem os tamanhos centrais <b>${c.join(', ')}</b>`:'Grade quebrada'} · ${r.tamanhos_ok} de ${r.tamanhos_total} tamanhos e <b>${r.estoque}</b> pares no total. Quem chega pela divulgação não acha o número.`;
   }
   if(r.grupo==='atencao') return `Falta o <b>${r.core_zerados.join(', ')}</b> (tamanho central). Pode aparecer na divulgação, mas sem ser o destaque até repor.`;
+  if(r.grupo==='pdp_novo') return `A página foi completada depois do último relatório e hoje tem os 3 elementos. A conversão ao lado (${pct(r.conv)}) é de antes da mudança; aguardar visitas novas antes de concluir.`;
   if(r.grupo==='pdp_ok') return `Já tem fotos, modelo e vídeo e converte só ${pct(r.conv)}. Testar outra foto principal, revisar a descrição e avaliar se o preço está pesando.`;
   if(r.grupo==='escalar') return `Converte <b>${(r.conv/REF).toLocaleString('pt-BR',{maximumFractionDigits:1})}×</b> a média da coleção com ${r.tamanhos_ok}/${r.tamanhos_total} tamanhos e ${r.estoque} pares, mas recebe só ${n(r.sessoes)} sessões (os líderes da coleção passam de ${n(Math.round([...R].sort((a,b)=>b.sessoes-a.sessoes)[2].sessoes/100)*100)}).`;
   if(r.grupo==='manter') return `Vendeu <b>${r.pecas}</b> peças, converte ${pct(r.conv)} (média ${pct(REF)}) com ${n(r.sessoes)} sessões e ${r.single?r.estoque+' un.':r.tamanhos_ok+'/'+r.tamanhos_total+' tamanhos e '+r.estoque+' pares'}, sem tamanho central zerado. A divulgação atual está funcionando.`;
@@ -213,6 +216,9 @@ section('s-escalar',['escalar'],'Dar mais destaque','Dar mais destaque no feed, 
 section('s-manter',['manter'],'Manter ritmo','Manter o ritmo atual de divulgação','Já vendem bem, convertem bem e têm estoque. Critério: Grade cheia ou quase cheia (≥70% dos tamanhos, nenhum tamanho central entre 35 e 38 zerado, 12 pares ou mais), conversão igual ou acima da média da coleção e pelo menos 4 pedidos desde '+fd(M.posthog_inicio)+'. O que está sendo feito está funcionando; é acompanhar o estoque.',false);
 section('s-pdp',['pdp'],'Página incompleta','Páginas de produto incompletas','Têm estoque e recebem visitas (90 sessões ou mais), mas convertem abaixo de 70% da média da coleção. Falta na página algum dos 3 elementos que ajudam a cliente a decidir: mais de uma foto, foto com modelo usando e popup de vídeo.',true);
 section('s-pdpok',['pdp_ok'],'Página completa, não vende','Página completa, mas não vende','Mesmo critério de estoque, visitas e conversão baixa, mas a página já tem fotos, modelo e vídeo. Vale testar outra foto principal, revisar a descrição e entender se o preço está pesando.',true);
+section('s-pdpnovo',['pdp_novo'],'Página atualizada, aguardando','Página atualizada: aguardando resultado','Tinham conversão baixa e ganharam vídeo e/ou foto com modelo depois do último relatório. A conversão mostrada é de antes da mudança, então ainda não dá para dizer se resolveu. Voltam a ser avaliados quando houver visitas novas medidas.',true);
+(function(){const el=document.getElementById('s-mudancas');const L=M.mudancas||[];if(!L.length){el.hidden=true;return;}
+ el.innerHTML=`<div class="section-title-row"><h2 class="section-title">O que mudou desde ${M.mudancas_desde||'o último relatório'}</h2></div><p class="section-desc">${M.mudancas_nota||''}</p><div class="cards">${L.map(b=>`<article class="notecard"><span class="badge t-${b.tom||'idle'}">${b.titulo}</span><ul style="margin-top:8px">${b.itens.map(x=>`<li>${x}</li>`).join('')}</ul></article>`).join('')}</div>`;})();
 
 // Table
 const cols=[['nome','Produto'],['grupo','Ação'],['cadastro','Cadastro'],['pecas','Vendas','r'],['receita','Receita','r'],['sessoes','Sessões','r'],['conv','Conv.','r'],['estoque','Estoque','r'],['grade','Grade','r'],['fotos','Fotos','r'],['modelo','Modelo'],['video','Vídeo']];
@@ -221,7 +227,7 @@ let sortK='receita',asc=false,filter='todos';
 const thead=document.querySelector('#tbl thead'),tbody=document.querySelector('#tbl tbody');
 thead.innerHTML='<tr>'+cols.map(([k,l,c])=>`<th data-k="${k}" class="${c||''}" tabindex="0">${l}</th>`).join('')+'</tr>';
 thead.querySelectorAll('th').forEach(th=>{const go=()=>{const k=th.dataset.k; if(sortK===k)asc=!asc; else {sortK=k;asc=['nome','grupo','cadastro'].includes(k);} draw();}; th.onclick=go; th.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}}});
-const fl=[['todos','Todos'],['pausar','Segurar'],['atencao','Sem ser destaque'],['escalar','Mais destaque'],['manter','Manter'],['pdp','Página incompleta'],['pdp_ok','Página completa'],['monitorar','Monitorar'],['novo','Recentes']];
+const fl=[['todos','Todos'],['pausar','Segurar'],['atencao','Sem ser destaque'],['escalar','Mais destaque'],['manter','Manter'],['pdp','Página incompleta'],['pdp_ok','Página completa'],['pdp_novo','Página atualizada'],['monitorar','Monitorar'],['novo','Recentes']];
 const fEl=document.getElementById('filters');
 fEl.innerHTML=fl.map(([k,l])=>`<button type="button" data-f="${k}" aria-pressed="${k==='todos'}">${l} <span class="c">${k==='todos'?R.length:R.filter(r=>r.grupo===k).length}</span></button>`).join('');
 fEl.querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.f;fEl.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));draw();});

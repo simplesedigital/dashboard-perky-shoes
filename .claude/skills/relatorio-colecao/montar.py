@@ -23,6 +23,8 @@ def main():
     ap.add_argument("--dir", required=True); ap.add_argument("--tag", required=True)
     ap.add_argument("--colecao", required=True); ap.add_argument("--posthog-inicio", required=True)
     ap.add_argument("--views", required=True); ap.add_argument("--nota", action="append", default=[])
+    ap.add_argument("--mudancas", default=None, help="JSON {desde, nota, blocos:[{titulo, tom, itens:[html]}]} para o bloco O que mudou")
+    ap.add_argument("--pagina-atualizada", default="", help="ids separados por vírgula cujas PDPs mudaram depois da janela de conversão")
     ap.add_argument("--data-fim", default=date.today().isoformat())
     ap.add_argument("--posthog-fim", default=None, help="último dia com coleta normal no PostHog (padrão: --data-fim)")
     a = ap.parse_args()
@@ -87,6 +89,7 @@ def main():
         elif keep: g = "manter"
         elif healthy and r["sessoes"] >= 90 and c < ref * 0.7: g = "pdp_ok" if (r["fotos"] > 1 and r["modelo"] and r["video"]) else "pdp"
         else: g = "monitorar"
+        if g in ("pdp", "pdp_ok") and str(r["id"]) in a.pagina_atualizada.split(","): g = "pdp_novo"
         r["grupo"] = g
 
     from PIL import Image
@@ -99,13 +102,15 @@ def main():
     meta = dict(colecao=a.colecao, tag=a.tag, data_fim=a.data_fim, posthog_inicio=a.posthog_inicio, posthog_fim=a.posthog_fim,
                 pedidos_inicio=min(o["received_at"][:10] for o in O), n_pedidos=len(json.load(open("orders_all.json"))),
                 n_imagens=sum(len(v) for v in IM.values()), notas=a.nota)
+    if a.mudancas:
+        mu = json.load(open(a.mudancas)); meta.update(mudancas=mu["blocos"], mudancas_desde=mu.get("desde"), mudancas_nota=mu.get("nota", ""))
     data = {"rows": rows, "ref": ref, "meta": meta}
     t = open(os.path.join(AQUI, "template.html")).read()
     t = t.replace("__TITULO__", a.colecao).replace("__DATA__", json.dumps(data, ensure_ascii=False).replace("</", "<\\/"))
     open("relatorio.html", "w").write(t)
 
     nomes = {"pausar": "SEGURAR", "atencao": "SEM SER DESTAQUE (falta 1 tamanho central)", "escalar": "DAR MAIS DESTAQUE",
-             "manter": "MANTER O RITMO", "pdp": "PÁGINA INCOMPLETA", "pdp_ok": "PÁGINA COMPLETA, MAS NÃO VENDE",
+             "manter": "MANTER O RITMO", "pdp": "PÁGINA INCOMPLETA", "pdp_ok": "PÁGINA COMPLETA, MAS NÃO VENDE", "pdp_novo": "PÁGINA ATUALIZADA, AGUARDANDO RESULTADO",
              "monitorar": "MONITORAR (não entra na mensagem)", "novo": "RECENTE / DADOS INSUFICIENTES"}
     out = [f"{a.colecao}: {sum(r['pecas'] for r in rows)} peças, R$ {sum(r['receita'] for r in rows):,.0f}, conversão média {ref:.2f}%".replace(",", ".")]
     for g, lab in nomes.items():
@@ -114,7 +119,7 @@ def main():
         for r in L:
             falta = [x for x, ok in (("mais fotos", r["fotos"] > 1), ("foto com modelo", r["modelo"]), ("vídeo", r["video"])) if not ok]
             out.append(f"- {r['nome']} | vendas {r['pecas']} | sessões {r['sessoes']} | conv {r['conv'] or 0:.2f}% | estoque {r['estoque']} | zerados {','.join(r['tamanhos_zerados']) or '-'}"
-                       + (f" | falta: {', '.join(falta)}" if g in ("pdp", "pdp_ok") else ""))
+                       + (f" | falta: {', '.join(falta)}" if g in ("pdp", "pdp_ok", "pdp_novo") else ""))
     open("grupos.txt", "w").write("\n".join(out))
     print("\n".join(out))
 
