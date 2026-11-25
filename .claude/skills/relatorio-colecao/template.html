@@ -156,7 +156,7 @@ button:focus-visible,a:focus-visible,th:focus-visible{outline:2px solid var(--ac
 const D=JSON.parse(document.getElementById('data').textContent);
 const R=D.rows, REF=D.ref, M=D.meta;
 const fd=s=>s.slice(8,10)+'/'+s.slice(5,7);
-const JANELA=`período de ${fd(M.posthog_inicio)} a ${fd(M.data_fim)}`;
+const JANELA=`período de ${fd(M.posthog_inicio)} a ${fd(M.posthog_fim||M.data_fim)}`;
 document.getElementById('h1').textContent=`${M.colecao} · Grade, conversão e PDP`;
 document.getElementById('subtitle').textContent=`Perky Shoes · ${R.length} produtos com a tag ${M.tag} · vendas e estoque via API Vnda, acessos via PostHog · dados até ${fd(M.data_fim)}/${M.data_fim.slice(0,4)}`;
 document.getElementById('janela').textContent=JANELA;

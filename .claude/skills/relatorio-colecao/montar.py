@@ -24,7 +24,9 @@ def main():
     ap.add_argument("--colecao", required=True); ap.add_argument("--posthog-inicio", required=True)
     ap.add_argument("--views", required=True); ap.add_argument("--nota", action="append", default=[])
     ap.add_argument("--data-fim", default=date.today().isoformat())
+    ap.add_argument("--posthog-fim", default=None, help="último dia com coleta normal no PostHog (padrão: --data-fim)")
     a = ap.parse_args()
+    a.posthog_fim = a.posthog_fim or a.data_fim
     os.chdir(a.dir)
     P = {p["id"]: p for p in json.load(open("prods.json"))}
     V = {}
@@ -45,7 +47,7 @@ def main():
             if pid in P:
                 d = s[pid]; d["q"] += it["quantity"]; d["rev"] += it["price"] * it["quantity"]; d["ord"].add(o["code"])
                 d["first"] = min(d["first"] or r_, r_)
-                if r_ >= a.posthog_inicio: d["ord28"].add(o["code"])
+                if a.posthog_inicio <= r_ <= a.posthog_fim: d["ord28"].add(o["code"])
 
     recente = (date.fromisoformat(a.data_fim) - timedelta(days=10)).isoformat()
     rows = []
@@ -94,7 +96,7 @@ def main():
             b = io.BytesIO(); Image.open(f).convert("RGB").resize((96, 96)).save(b, "JPEG", quality=72)
             r["thumb"] = "data:image/jpeg;base64," + base64.b64encode(b.getvalue()).decode()
         else: r["thumb"] = ""
-    meta = dict(colecao=a.colecao, tag=a.tag, data_fim=a.data_fim, posthog_inicio=a.posthog_inicio,
+    meta = dict(colecao=a.colecao, tag=a.tag, data_fim=a.data_fim, posthog_inicio=a.posthog_inicio, posthog_fim=a.posthog_fim,
                 pedidos_inicio=min(o["received_at"][:10] for o in O), n_pedidos=len(json.load(open("orders_all.json"))),
                 n_imagens=sum(len(v) for v in IM.values()), notas=a.nota)
     data = {"rows": rows, "ref": ref, "meta": meta}
