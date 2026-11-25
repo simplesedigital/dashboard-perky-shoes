@@ -22,6 +22,7 @@ Escreva tudo em português. Trabalhe numa pasta do scratchpad (`$W`). `$K` = est
 
 2. **Acessos (PostHog)** — projeto "Default project" (id 694276), fuso America/Sao_Paulo.
    Rode o conteúdo de `$W/posthog.sql` com `execute-sql` (siga as regras do servidor PostHog: confirme `$pageview`/`$pathname` com `read-data-schema` antes). Salve o resultado em `$W/views.csv` como linhas `id,sessoes` (sem cabeçalho).
+   - Desde 25/11/2026 uma transformação "Drop Events" descarta tudo exceto `$pageview`, `purchase` e eventos de identificação (para caber na cota gratuita). Não planeje análises com autocapture, pageleave, web vitals ou exceções.
    - **Antes de tudo, confira se o PostHog está coletando**: rode `SELECT toDate(timestamp) dia, countIf(event='$pageview') FROM events WHERE timestamp >= now() - INTERVAL 30 DAY GROUP BY dia ORDER BY dia` e `billing-overview-get`. O projeto é plano gratuito (1 milhão de eventos/mês, ciclo renova dia 27); ao estourar, a coleta para (aconteceu em 12/11/2026). A janela de conversão deve terminar no último dia com coleta normal, e os pedidos devem usar **a mesma janela** que as sessões. Se houver buraco, avise o usuário e diga até quando os dados valem.
    - Defina `--posthog-inicio` = a data a partir da qual há dados para essas PDPs (o PostHog só existe desde 28/10/2026; use a maior entre essa data e o início do período pedido). Produtos sem linha no resultado = 0 sessões.
 
